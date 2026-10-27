@@ -1,0 +1,113 @@
+{
+  "model": "clickbait_classifier",
+  "device": "cpu",
+  "epochs": 2,
+  "batch_size": 32,
+  "lr": 5e-05,
+  "pretrained_checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\pretrain_mlm.pt",
+  "test_split_samples": 1496,
+  "random_init": {
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.5735683351799973,
+        "val_loss": 0.46506439954201806,
+        "val_accuracy": 0.7901069518716578,
+        "val_f1_macro": 0.7832544318632744
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.408434706658359,
+        "val_loss": 0.4589722272865275,
+        "val_accuracy": 0.7961229946524064,
+        "val_f1_macro": 0.789205733227077
+      }
+    ],
+    "best_val_f1_macro": 0.789205733227077,
+    "test_metrics": {
+      "loss": 0.4914381805269476,
+      "accuracy": 0.7867647058823529,
+      "f1_macro": 0.7778922701368091,
+      "confusion_matrix": [
+        [
+          738,
+          131
+        ],
+        [
+          188,
+          439
+        ]
+      ],
+      "n_samples": 1496
+    },
+    "checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\classifier_random_init.pt"
+  },
+  "pretrained": {
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.5281473477708044,
+        "val_loss": 0.4729808650233529,
+        "val_accuracy": 0.7760695187165776,
+        "val_f1_macro": 0.7678799289503973
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.4317025390906456,
+        "val_loss": 0.46028169208669406,
+        "val_accuracy": 0.7827540106951871,
+        "val_f1_macro": 0.7749256425984006
+      }
+    ],
+    "best_val_f1_macro": 0.7749256425984006,
+    "test_metrics": {
+      "loss": 0.45571140905115054,
+      "accuracy": 0.7961229946524064,
+      "f1_macro": 0.7857614067213673,
+      "confusion_matrix": [
+        [
+          760,
+          109
+        ],
+        [
+          196,
+          431
+        ]
+      ],
+      "n_samples": 1496
+    },
+    "checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\classifier_pretrained.pt"
+  },
+  "comparison_table": [
+    {
+      "variant": "random_init",
+      "test_accuracy": 0.7867647058823529,
+      "test_f1_macro": 0.7778922701368091,
+      "test_confusion_matrix": [
+        [
+          738,
+          131
+        ],
+        [
+          188,
+          439
+        ]
+      ]
+    },
+    {
+      "variant": "pretrained",
+      "test_accuracy": 0.7961229946524064,
+      "test_f1_macro": 0.7857614067213673,
+      "test_confusion_matrix": [
+        [
+          760,
+          109
+        ],
+        [
+          196,
+          431
+        ]
+      ]
+    }
+  ]
+}

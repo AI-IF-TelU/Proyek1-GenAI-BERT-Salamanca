@@ -1,0 +1,245 @@
+{
+  "step": 4,
+  "device": "cpu",
+  "test_split_samples": 1496,
+  "classifier_random_init": {
+    "checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\classifier_random_init.pt",
+    "test_metrics": {
+      "n_samples": 1496,
+      "accuracy": 0.7867647058823529,
+      "f1_macro": 0.7778922701368091,
+      "f1_weighted": 0.785073305088052,
+      "avg_loss": 0.4914381830768789,
+      "confusion_matrix": [
+        [
+          738,
+          131
+        ],
+        [
+          188,
+          439
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "non-clickbait",
+        "clickbait"
+      ],
+      "classification_report": {
+        "non-clickbait": {
+          "precision": 0.796976241900648,
+          "recall": 0.8492520138089759,
+          "f1-score": 0.8222841225626741,
+          "support": 869.0
+        },
+        "clickbait": {
+          "precision": 0.7701754385964912,
+          "recall": 0.7001594896331739,
+          "f1-score": 0.733500417710944,
+          "support": 627.0
+        },
+        "accuracy": 0.7867647058823529,
+        "macro avg": {
+          "precision": 0.7835758402485695,
+          "recall": 0.7747057517210749,
+          "f1-score": 0.7778922701368091,
+          "support": 1496.0
+        },
+        "weighted avg": {
+          "precision": 0.7857435522805234,
+          "recall": 0.7867647058823529,
+          "f1-score": 0.785073305088052,
+          "support": 1496.0
+        }
+      }
+    }
+  },
+  "classifier_pretrained": {
+    "checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\classifier_pretrained.pt",
+    "test_metrics": {
+      "n_samples": 1496,
+      "accuracy": 0.7961229946524064,
+      "f1_macro": 0.7857614067213673,
+      "f1_weighted": 0.7933830002755056,
+      "avg_loss": 0.4557114109635991,
+      "confusion_matrix": [
+        [
+          760,
+          109
+        ],
+        [
+          196,
+          431
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "non-clickbait",
+        "clickbait"
+      ],
+      "classification_report": {
+        "non-clickbait": {
+          "precision": 0.7949790794979079,
+          "recall": 0.8745684695051784,
+          "f1-score": 0.8328767123287671,
+          "support": 869.0
+        },
+        "clickbait": {
+          "precision": 0.7981481481481482,
+          "recall": 0.6874003189792663,
+          "f1-score": 0.7386461011139674,
+          "support": 627.0
+        },
+        "accuracy": 0.7961229946524064,
+        "macro avg": {
+          "precision": 0.7965636138230281,
+          "recall": 0.7809843942422223,
+          "f1-score": 0.7857614067213673,
+          "support": 1496.0
+        },
+        "weighted avg": {
+          "precision": 0.7963072920939646,
+          "recall": 0.7961229946524064,
+          "f1-score": 0.7933830002755056,
+          "support": 1496.0
+        }
+      }
+    }
+  },
+  "comparison_table": [
+    {
+      "variant": "random_init",
+      "test_accuracy": 0.7867647058823529,
+      "test_f1_macro": 0.7778922701368091,
+      "confusion_matrix": [
+        [
+          738,
+          131
+        ],
+        [
+          188,
+          439
+        ]
+      ]
+    },
+    {
+      "variant": "pretrained",
+      "test_accuracy": 0.7961229946524064,
+      "test_f1_macro": 0.7857614067213673,
+      "confusion_matrix": [
+        [
+          760,
+          109
+        ],
+        [
+          196,
+          431
+        ]
+      ]
+    }
+  ],
+  "delta_f1_pretrained_minus_random": 0.007869,
+  "interpretation": "Pretraining memberikan manfaat (F1 lebih tinggi)",
+  "fill_mask_examples": [
+    {
+      "style": "non-clickbait",
+      "original_text": "cegah konflik, kkp sosialisasikan perizinan pengelolaan ruang laut",
+      "masked_positions": [
+        2,
+        3
+      ],
+      "masked_tokens": [
+        "cegah",
+        "konflik"
+      ],
+      "predicted_tokens": [
+        "dipahami",
+        ","
+      ],
+      "correct": false
+    },
+    {
+      "style": "clickbait",
+      "original_text": "bertemu di game pubg, pria ini baru tahu calon istrinya lumpuh, reaksi jujurnya banjir pujian",
+      "masked_positions": [
+        9,
+        10
+      ],
+      "masked_tokens": [
+        "ini",
+        "baru"
+      ],
+      "predicted_tokens": [
+        ",",
+        ","
+      ],
+      "correct": false
+    },
+    {
+      "style": "non-clickbait",
+      "original_text": "bmkg catat gempa m 3.4 guncang palu sulawesi tengah, dirasakan hingga sigi",
+      "masked_positions": [
+        6,
+        9
+      ],
+      "masked_tokens": [
+        "3",
+        "gunc"
+      ],
+      "predicted_tokens": [
+        "norma",
+        ","
+      ],
+      "correct": false
+    },
+    {
+      "style": "clickbait",
+      "original_text": "marcell darwin beri gombalan maut malah dibalas 'tendangan' oleh pacar baru",
+      "masked_positions": [
+        5,
+        12
+      ],
+      "masked_tokens": [
+        "beri",
+        "'"
+      ],
+      "predicted_tokens": [
+        ",",
+        ","
+      ],
+      "correct": false
+    },
+    {
+      "style": "non-clickbait",
+      "original_text": "suka makan dan minum manis, risiko kanker semakin tinggi",
+      "masked_positions": [
+        3,
+        10
+      ],
+      "masked_tokens": [
+        "makan",
+        "semakin"
+      ],
+      "predicted_tokens": [
+        ",",
+        ","
+      ],
+      "correct": false
+    },
+    {
+      "style": "non-clickbait",
+      "original_text": "anies kirim tim bantu penanggulangan karhutla di riau",
+      "masked_positions": [
+        2,
+        8
+      ],
+      "masked_tokens": [
+        "anies",
+        "di"
+      ],
+      "predicted_tokens": [
+        "dipahami",
+        ","
+      ],
+      "correct": false
+    }
+  ]
+}

@@ -7,10 +7,10 @@ BERT Masked Language Model kecil yang dibangun dari nol dengan PyTorch. Dataset:
 | Step | Pemilik | Status | Folder / file |
 |---|---|---|---|
 | 1. Persiapan data dan tokenizer | Anggota 1 | ✅ selesai | `config.py`, `src/data/`, `artifacts/tokenizer/`, `data/splits/` |
-| 2. Arsitektur BERT | Anggota 2 | belum | `src/model.py` |
-| 3. Masking dan pretraining MLM | Anggota 3 | belum | `src/collator.py`, `src/pretrain.py` |
-| 4. MLM bergaya dan classifier | Anggota 4 | belum | `src/finetune_style.py`, `src/classifier.py` |
-| 5. Generasi, evaluasi, dokumentasi | Anggota 5 | belum | `src/generate.py`, `src/evaluate.py` |
+| 2. Arsitektur BERT | Anggota 2 | ✅ selesai | `src/model.py` |
+| 3. Masking dan pretraining MLM | Anggota 3 | ✅ selesai | `src/collator.py`, `src/pretrain.py`, `checkpoints/pretrain_mlm.pt` |
+| 4. MLM bergaya dan classifier | Anggota 4 | ✅ selesai | `src/finetune_style.py`, `src/classifier.py`, `src/evaluate_step4.py`, `notebooks/step4_train_and_evaluate.ipynb` |
+| 5. Generasi, evaluasi, dokumentasi | Anggota 5 | siap lanjut | `src/generate.py`, `src/evaluate.py` |
 
 Nama file untuk Step 2 sampai 5 hanya saran, silakan disesuaikan. Yang penting semua ukuran dan
 hyperparameter diambil dari `config.py`.
@@ -66,6 +66,13 @@ unzip -q clickid.zip -d click_id_dataset
 
 Di Windows PowerShell: `Expand-Archive clickid.zip -DestinationPath click_id_dataset`.
 
+Jika dataset sudah berada di folder lain, misalnya `C:\Users\Asus\Downloads\click_id_dataset`,
+atur path-nya di PowerShell sebelum menjalankan perintah data/training:
+
+```powershell
+$env:INDOMINIBERT_DATASET_DIR = "C:\Users\Asus\Downloads\click_id_dataset"
+```
+
 ## 3. Bikin ulang korpus pretraining (wajib sekali di tiap device)
 
 Isi yang **sudah ada di repo**, jadi tidak perlu dibuat ulang:
@@ -93,7 +100,54 @@ python -m tests.test_step1_data
 
 Semua tes harus `PASS`.
 
-## 4. Cara memakai output Step 1
+Tes unit Step 3 dan Step 4:
+
+```powershell
+python -m tests.test_step3_training
+python -m pytest tests/test_step4.py -v
+```
+
+## 4. Menjalankan Step 3 dan Step 4
+
+Setelah data dan tokenizer siap, jalankan pretraining MLM lalu fine-tuning bergaya dan classifier.
+Semua opsi default (epoch, batch size, learning rate, panjang sequence) diambil dari `config.py`.
+Perintah berikut menjalankan konfigurasi penuh, bukan smoke test:
+
+```powershell
+python -m src.pretrain
+python -m src.finetune_style
+python -m src.classifier
+```
+
+Evaluasi komprehensif Step 4 (test metrics, confusion matrix plot, dan fill-mask inference):
+
+```powershell
+python -m src.evaluate_step4
+```
+
+Atau jalankan seluruh alur Step 4 di Google Colab dengan GPU T4 menggunakan notebook:
+`notebooks/step4_train_and_evaluate.ipynb`.
+
+Step 4 membutuhkan checkpoint Step 3 (`checkpoints/pretrain_mlm.pt`) dan akan berhenti dengan
+error jika checkpoint itu belum ada. Step 4 menyimpan generator `checkpoints/style_mlm.pt`,
+classifier random-init (`checkpoints/classifier_random_init.pt`) dan pretrained (`checkpoints/classifier_pretrained.pt`),
+serta laporan metrik test dan tabel ablation di `reports/style_classifier_ablation.json` dan `reports/step4_evaluation.json`.
+Visualisasi confusion matrix disimpan di `reports/step4_confusion_matrix.png`.
+Pemilihan checkpoint classifier memakai split validasi; split test hanya digunakan untuk metrik akhir.
+
+Checkpoint pretraining terakhir dan terbaik disimpan di `checkpoints/pretrain_mlm_latest.pt` dan
+`checkpoints/pretrain_mlm.pt`; history loss dan grafiknya disimpan di
+`reports/pretrain_mlm_metrics.json` dan `reports/pretrain_mlm_loss.png`. Untuk melanjutkan
+pretraining dari checkpoint epoch terakhir:
+
+```powershell
+python -m src.pretrain --resume
+```
+
+Training model di CPU dapat memakan waktu lama; gunakan GPU CUDA bila tersedia. Opsi seperti
+`--epochs 1` ditujukan untuk uji cepat dan bukan hasil akhir yang mewakili konfigurasi proposal.
+
+## 5. Cara memakai output Step 1
 
 ### Token khusus (ID tetap, dari `config.py`)
 
@@ -169,28 +223,36 @@ Split yang tersedia: `"train"`, `"val"`, `"test"`. Split `test` hanya dipakai un
 - Untuk metrik kebaruan, bandingkan hasil generasi dengan kolom `text` di
   `data/splits/titles_train.csv`.
 
-## 5. Struktur repo
+## 6. Struktur repo
 
 ```
 .
 ├── config.py                  # SATU sumber konfigurasi (path, token, hyperparameter semua step)
 ├── requirements.txt
 ├── src/
+│   ├── model.py               # encoder BERT, MLM head, classification head
+│   ├── collator.py            # dynamic masking 80/10/10
+│   ├── pretrain.py            # training Step 3
+│   ├── finetune_style.py      # MLM bergaya Step 4
+│   ├── classifier.py          # classifier + ablation Step 4
 │   └── data/
 │       ├── cleaning.py        # pembersihan teks + pemecahan kalimat
 │       ├── prepare.py         # load, split, anti-leakage, tulis korpus
 │       ├── tokenizer.py       # training & loading WordPiece
 │       └── dataset.py         # PretrainDataset, TitleDataset, builder DataLoader
-├── tests/test_step1_data.py   # cek kriteria selesai Step 1
+├── tests/
+│   ├── test_step1_data.py     # cek kriteria selesai Step 1
+│   └── test_step3_training.py # cek masking dan forward/backward MLM
 ├── artifacts/tokenizer/       # tokenizer.json, vocab.txt
 ├── data/splits/               # titles_train/val/test.csv
 ├── data/processed/            # (di-gitignore) korpus pretraining + cache
+├── checkpoints/               # (di-gitignore) checkpoint Step 3 dan Step 4
 ├── reports/                   # data_stats.json, tokenizer_stats.json
 ├── docs/llm_log/              # Log Interaksi LLM tiap anggota
 └── click_id_dataset/          # (di-gitignore) dataset mentah dari Kaggle
 ```
 
-## 6. Keputusan data yang perlu diketahui semua anggota
+## 7. Keputusan data yang perlu diketahui semua anggota
 
 - **Sumber artikel raw = XLSX + CSV, dedup per URL.** File CSV di Kaggle terpotong (misalnya
   tribunnews hanya 1.500 dari 9.662 artikel), sedangkan XLSX lengkap (46.119 artikel, sesuai paper).

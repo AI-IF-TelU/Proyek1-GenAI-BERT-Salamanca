@@ -14,6 +14,7 @@ Pemilik bagian:
 """
 
 from dataclasses import dataclass, field
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -44,10 +45,9 @@ LABEL_NAMES = {0: "non-clickbait", 1: "clickbait"}
 @dataclass
 class PathConfig:
     # Dataset mentah dari Kaggle (andikawilliam/clickid), diekstrak ke folder ini
-    dataset_dir: Path = ROOT / "click_id_dataset"
-    raw_xlsx_dir: Path = ROOT / "click_id_dataset" / "raw" / "xlsx"
-    raw_csv_dir: Path = ROOT / "click_id_dataset" / "raw" / "csv"
-    annotated_main: Path = ROOT / "click_id_dataset" / "annotated" / "combined" / "csv" / "main.csv"
+    dataset_dir: Path = field(default_factory=lambda: Path(
+        os.environ.get("INDOMINIBERT_DATASET_DIR", ROOT / "click_id_dataset")
+    ))
 
     # Split judul berlabel (kecil, ikut di-commit supaya semua anggota pakai split yang sama)
     splits_dir: Path = ROOT / "data" / "splits"
@@ -58,6 +58,18 @@ class PathConfig:
     # Statistik dataset untuk laporan
     reports_dir: Path = ROOT / "reports"
     checkpoints_dir: Path = ROOT / "checkpoints"
+
+    @property
+    def raw_xlsx_dir(self):
+        return self.dataset_dir / "raw" / "xlsx"
+
+    @property
+    def raw_csv_dir(self):
+        return self.dataset_dir / "raw" / "csv"
+
+    @property
+    def annotated_main(self):
+        return self.dataset_dir / "annotated" / "combined" / "csv" / "main.csv"
 
     @property
     def title_split(self):
@@ -132,6 +144,7 @@ class StyleConfig:
     batch_size: int = 64
     lr: float = 1e-4
     epochs: int = 20
+    weight_decay: float = 0.01
 
 
 @dataclass
@@ -140,6 +153,7 @@ class ClassifierConfig:
     batch_size: int = 64
     lr: float = 5e-5
     epochs: int = 5
+    weight_decay: float = 0.01
 
 
 @dataclass
