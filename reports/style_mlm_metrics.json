@@ -1,0 +1,17 @@
+{
+  "model": "style_mlm",
+  "device": "cpu",
+  "epochs": 1,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 35.855024669843154,
+      "val_loss": 26.473241749416392
+    }
+  ],
+  "checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\style_mlm.pt",
+  "batch_size": 32,
+  "lr": 0.0001,
+  "train_samples": 11966,
+  "val_samples": 1496
+}

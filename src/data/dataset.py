@@ -16,6 +16,8 @@ Contoh:
     batch = next(iter(loader))     # batch["input_ids"].shape == (128, 128)
 """
 
+from collections.abc import Iterator
+
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset
@@ -33,11 +35,19 @@ def _pad(ids: list, max_len: int) -> tuple:
     return input_ids, attention_mask
 
 
-def read_docs(path) -> list:
+def read_docs(path) -> Iterator[list[str]]:
     """Baca file korpus: satu kalimat per baris, baris kosong memisahkan artikel."""
     with open(path, encoding="utf-8") as f:
-        blocks = f.read().split("\n\n")
-    return [[s for s in b.split("\n") if s.strip()] for b in blocks if b.strip()]
+        doc = []
+        for line in f:
+            sentence = line.strip()
+            if sentence:
+                doc.append(sentence)
+            elif doc:
+                yield doc
+                doc = []
+        if doc:
+            yield doc
 
 
 class PretrainDataset(Dataset):
@@ -59,15 +69,12 @@ class PretrainDataset(Dataset):
 
     def _build(self, corpus, tokenizer) -> dict:
         body = self.max_len - 2           # sisakan tempat untuk [CLS] dan [SEP]
-        docs = read_docs(corpus)
-        flat = [s for d in docs for s in d]
-        encoded = iter(tokenizer.encode_batch(flat, add_special_tokens=False))
-
         blocks = []
-        for doc in docs:
+        for doc in read_docs(corpus):
+            encoded = tokenizer.encode_batch(doc, add_special_tokens=False)
             current = []
-            for _ in doc:
-                ids = next(encoded).ids
+            for encoding in encoded:
+                ids = encoding.ids
                 # kalimat yang lebih panjang dari satu blok dipotong-potong
                 for start in range(0, len(ids), body):
                     piece = ids[start:start + body]
@@ -126,13 +133,30 @@ class TitleDataset(Dataset):
         }
 
 
-def build_pretrain_loader(split="train", batch_size=pretrain_cfg.batch_size, shuffle=None, num_workers=0, **kwargs):
+def build_pretrain_loader(
+    split="train",
+    batch_size=pretrain_cfg.batch_size,
+    shuffle=None,
+    num_workers=0,
+    collate_fn=None,
+    **kwargs,
+):
     ds = PretrainDataset(split, **kwargs)
     return DataLoader(ds, batch_size=batch_size, shuffle=(split == "train") if shuffle is None else shuffle,
-                      num_workers=num_workers, drop_last=False)
+                      num_workers=num_workers, drop_last=False, collate_fn=collate_fn)
 
 
-def build_title_loader(split="train", batch_size=style_cfg.batch_size, with_style=True, shuffle=None, num_workers=0, **kwargs):
+def build_title_loader(
+    split="train",
+    batch_size=style_cfg.batch_size,
+    with_style=True,
+    shuffle=None,
+    num_workers=0,
+    collate_fn=None,
+    generator=None,
+    **kwargs,
+):
     ds = TitleDataset(split, with_style=with_style, **kwargs)
     return DataLoader(ds, batch_size=batch_size, shuffle=(split == "train") if shuffle is None else shuffle,
-                      num_workers=num_workers, drop_last=False)
+                      num_workers=num_workers, drop_last=False, collate_fn=collate_fn,
+                      generator=generator)

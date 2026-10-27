@@ -10,6 +10,7 @@ checkpoints/
 *.pt
 *.pth
 *.bin
+logs/
 
 # Python
 __pycache__/

@@ -1,0 +1,28 @@
+{
+  "device": "cpu",
+  "epochs_requested": 10,
+  "epochs_completed": 1,
+  "batch_size": 128,
+  "learning_rate": 0.0005,
+  "training_blocks": 153636,
+  "validation_blocks": 3257,
+  "history": [
+    {
+      "epoch": 1,
+      "train": {
+        "loss": 7.2042473623100305,
+        "accuracy": 0.10555084726961321,
+        "masked_tokens": 2253710,
+        "steps": 1201
+      },
+      "validation": {
+        "loss": 6.334920648957781,
+        "accuracy": 0.16192759133741114,
+        "masked_tokens": 48392,
+        "steps": 26
+      }
+    }
+  ],
+  "best_checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\pretrain_mlm.pt",
+  "latest_checkpoint": "C:\\Users\\Asus\\Downloads\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\pretrain_mlm_latest.pt"
+}
