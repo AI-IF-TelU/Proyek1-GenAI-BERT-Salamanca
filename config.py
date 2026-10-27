@@ -7,7 +7,7 @@ beri tahu anggota lain lewat commit message.
 
 Pemilik bagian:
     PathConfig, DataConfig, TokenizerConfig  -> Anggota 1 (Step 1)
-    ModelConfig                              -> Anggota 2 (Step 2)
+    ModelConfig, OverfitConfig               -> Anggota 2 (Step 2)
     PretrainConfig                           -> Anggota 3 (Step 3)
     StyleConfig, ClassifierConfig            -> Anggota 4 (Step 4)
     GenerationConfig                         -> Anggota 5 (Step 5)
@@ -111,6 +111,15 @@ class ModelConfig:
 
 
 @dataclass
+class OverfitConfig:
+    # Sanity check Step 2: model harus bisa menghafal satu batch kecil sampai loss mendekati 0
+    batch_size: int = 8
+    steps: int = 300
+    lr: float = 1e-3
+    target_loss: float = 0.05
+
+
+@dataclass
 class PretrainConfig:
     max_len: int = 128
     mask_prob: float = 0.15
@@ -124,6 +133,12 @@ class PretrainConfig:
     grad_clip: float = 1.0
     use_amp: bool = True
     num_workers: int = 2
+    log_every: int = 50               # catat train loss tiap N step (untuk grafik loss)
+    save_every: int = 500             # simpan last.pt tiap N step (jaga-jaga runtime Colab putus)
+    # Eksperimen: 3 variasi learning rate x 2 variasi batch size, masing-masing sweep_epochs epoch
+    sweep_lrs: tuple = (1e-4, 5e-4, 1e-3)
+    sweep_batch_sizes: tuple = (64, 128)
+    sweep_epochs: int = 1
 
 
 @dataclass
@@ -153,6 +168,7 @@ paths = PathConfig()
 data_cfg = DataConfig()
 tokenizer_cfg = TokenizerConfig()
 model_cfg = ModelConfig()
+overfit_cfg = OverfitConfig()
 pretrain_cfg = PretrainConfig()
 style_cfg = StyleConfig()
 classifier_cfg = ClassifierConfig()

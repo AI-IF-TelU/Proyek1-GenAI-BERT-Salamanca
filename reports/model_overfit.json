@@ -1,0 +1,35 @@
+{
+  "batch_shape": [
+    8,
+    48
+  ],
+  "masked_tokens": 15,
+  "steps": 300,
+  "lr": 0.001,
+  "parameters": {
+    "embeddings": 4129280,
+    "encoder_layers": 3159040,
+    "mlm_head (tanpa bobot yang diikat)": 82304,
+    "cls_head": 66306,
+    "total": 7436930
+  },
+  "expected_initial_loss": {
+    "mlm": 9.6803,
+    "cls": 0.6931
+  },
+  "initial_loss": {
+    "mlm": 9.4738,
+    "cls": 0.6947
+  },
+  "final_loss": {
+    "mlm": 0.002587,
+    "cls": 4.7e-05
+  },
+  "final_accuracy": {
+    "mlm_masked_tokens": 1.0,
+    "cls": 1.0
+  },
+  "target_loss": 0.05,
+  "seconds": 40.8,
+  "passed": true
+}
