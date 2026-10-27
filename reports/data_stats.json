@@ -1,0 +1,152 @@
+{
+  "seed": 42,
+  "annotated": {
+    "rows_raw": 15000,
+    "duplicate_title_rows": 34,
+    "titles_with_conflicting_labels": 8,
+    "rows_after_dedup": 14958,
+    "label_counts": {
+      "clickbait": 6276,
+      "non-clickbait": 8682
+    }
+  },
+  "title_splits": {
+    "train": {
+      "rows": 11966,
+      "clickbait": 5021,
+      "non-clickbait": 6945,
+      "clickbait_ratio": 0.4196
+    },
+    "val": {
+      "rows": 1496,
+      "clickbait": 628,
+      "non-clickbait": 868,
+      "clickbait_ratio": 0.4198
+    },
+    "test": {
+      "rows": 1496,
+      "clickbait": 627,
+      "non-clickbait": 869,
+      "clickbait_ratio": 0.4191
+    }
+  },
+  "title_words": {
+    "count": 11966,
+    "mean": 9.68,
+    "std": 2.33,
+    "min": 2,
+    "p50": 9,
+    "p95": 14,
+    "p99": 16,
+    "max": 19
+  },
+  "raw": {
+    "rows_xlsx": 46119,
+    "rows_csv": 38655,
+    "articles_after_url_dedup": 46434,
+    "articles_without_content": 550,
+    "articles_per_portal": {
+      "detikNews": 5469,
+      "fimela": 788,
+      "kapanlagi": 1006,
+      "kompas": 3253,
+      "liputan6": 4581,
+      "okezone": 4664,
+      "pos_metro": 307,
+      "republika": 6086,
+      "sindonews": 3572,
+      "tempo": 4026,
+      "tribunnews": 9662,
+      "wowkeren": 3020
+    }
+  },
+  "leakage": {
+    "leakage_removed_title_sentences": 1510,
+    "leakage_removed_content_sentences": 8,
+    "leakage_removed_total": 1518
+  },
+  "pretrain_corpus": {
+    "val": {
+      "documents": 928,
+      "sentences": 14273,
+      "words": 235104
+    },
+    "train": {
+      "documents": 45497,
+      "sentences": 673414,
+      "words": 11068693
+    }
+  },
+  "sentence_words": {
+    "count": 673414,
+    "mean": 16.44,
+    "std": 10.07,
+    "min": 3,
+    "p50": 14,
+    "p95": 34,
+    "p99": 52,
+    "max": 994
+  },
+  "most_common_sentences": [
+    [
+      "view in single page 1 2",
+      1103
+    ],
+    [
+      "view in single page 1 2 3",
+      122
+    ],
+    [
+      "penulis: annesa k. ramadhany",
+      73
+    ],
+    [
+      "the post appeared first on.",
+      72
+    ],
+    [
+      "the post, appeared first on.",
+      41
+    ],
+    [
+      "setiap orang punya kisah cinta yang unik.",
+      38
+    ],
+    [
+      "ada yang penuh warna-warni bahagia tapi ada juga yang diselimuti duka.",
+      38
+    ],
+    [
+      "bahkan ada yang memberi pelajaran berharga dalam hidup dan menciptakan perubahan besar.",
+      38
+    ],
+    [
+      "mereka terdiri dari 34 tim panel ahli dan 10 dokter pribadi presiden.",
+      29
+    ],
+    [
+      "ada yang bernasib baik, ada pula yang masih kurang beruntung.",
+      27
+    ],
+    [
+      "transaksi perdagangan saham cukup ramai.",
+      25
+    ],
+    [
+      "pasal 55 ayat (1) ke-1 jo.",
+      25
+    ],
+    [
+      "mereka juga akan menggelar konser final untuk tur \"love yourself: speak yourself\" di seoul selama tiga hari yaitu 26, 27 dan 29 oktober.",
+      24
+    ],
+    [
+      "pasal 64 ayat (1) kuhp.",
+      24
+    ],
+    [
+      "ia meninggal setelah sempat menjalani perawatan di rumah sakit pusat angkatan darat gatot soebroto (rspad), jalan abdul rachman saleh, senen, jakarta pusat.",
+      24
+    ]
+  ]
+}

@@ -1,0 +1,26 @@
+# Dataset mentah dari Kaggle (unduh sendiri, lihat README)
+click_id_dataset/
+*.zip
+
+# Korpus pretraining dan cache token (besar, dibuat ulang dengan: python -m src.data.prepare)
+data/processed/
+
+# Checkpoint model
+checkpoints/
+*.pt
+*.pth
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
