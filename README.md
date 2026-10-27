@@ -7,8 +7,8 @@ BERT Masked Language Model kecil yang dibangun dari nol dengan PyTorch. Dataset:
 | Step | Pemilik | Status | Folder / file |
 |---|---|---|---|
 | 1. Persiapan data dan tokenizer | Anggota 1 | ✅ selesai | `config.py`, `src/data/`, `artifacts/tokenizer/`, `data/splits/` |
-| 2. Arsitektur BERT | Anggota 2 | belum | `src/model.py` |
-| 3. Masking dan pretraining MLM | Anggota 3 | belum | `src/collator.py`, `src/pretrain.py` |
+| 2. Arsitektur BERT | Anggota 2 | ✅ selesai | `src/model.py`, `src/overfit.py`, `reports/model_overfit.json` |
+| 3. Masking dan pretraining MLM | Anggota 2 | kode selesai, training di GPU | `src/collator.py`, `src/pretrain.py`, `src/sweep.py` |
 | 4. MLM bergaya dan classifier | Anggota 4 | belum | `src/finetune_style.py`, `src/classifier.py` |
 | 5. Generasi, evaluasi, dokumentasi | Anggota 5 | belum | `src/generate.py`, `src/evaluate.py` |
 
@@ -169,28 +169,117 @@ Split yang tersedia: `"train"`, `"val"`, `"test"`. Split `test` hanya dipakai un
 - Untuk metrik kebaruan, bandingkan hasil generasi dengan kolom `text` di
   `data/splits/titles_train.csv`.
 
-## 5. Struktur repo
+## 5. Step 2: Model BERT (`src/model.py`)
+
+Encoder BERT kecil yang ditulis dari nol. Multi-head self-attention dua arah ditulis manual,
+tanpa `nn.TransformerEncoder`. Semua ukuran diambil dari `config.ModelConfig`: 4 layer,
+hidden 256, 4 head, FFN 1024 (GELU), positional embedding dipelajari, dan post-LayerNorm.
+Total ada **7.436.930 parameter**. Bobot MLM head diikat ke token embedding.
+
+```python
+from src.model import IndoMiniBERT, load_model
+
+model = IndoMiniBERT()
+out = model(input_ids, attention_mask)                        # out["logits"]: (B, L, 16000)
+out = model(input_ids, attention_mask, labels=mlm_labels)     # out["loss"]; logits hanya posisi labels != -100
+out = model(input_ids, attention_mask, task="cls", labels=y)  # out["logits"]: (B, 2) dari token [CLS]
+out = model(input_ids, attention_mask, output_attentions=True)  # out["attentions"]: 4 x (B, 4, L, L)
+
+model = load_model("checkpoints/pretrain/main/best.pt", device="cuda")   # untuk Step 4 dan 5
+```
+
+Untuk task `cls`, Step 4 cukup memuat `best.pt` hasil pretraining. `cls_head` masih berupa bobot
+acak dan langsung bisa di-fine-tune.
+
+Cek Step 2 (tidak butuh dataset Kaggle):
+
+```bash
+python -m tests.test_step2_model   # bentuk output, backward, weight tying, padding mask, overfit
+python -m src.overfit              # tulis reports/model_overfit.json + reports/figures/overfit_loss.png
+```
+
+Hasil tes overfit (8 judul, 300 step, dropout 0): loss MLM turun dari 9,47 ke 0,0026, loss
+klasifikasi dari 0,69 ke 0,00005, dan akurasi akhir 100%.
+
+## 6. Step 3: Masking dan pretraining MLM
+
+**Masking** (`src/collator.py`): 15% token dipilih, lalu 80% diganti `[MASK]`, 10% diganti token
+acak, dan 10% dibiarkan. Token dengan ID `<= NCB_ID` tidak pernah di-mask. Label posisi yang tidak
+dinilai adalah `-100`.
+
+```python
+from src.collator import mask_tokens, MLMCollator
+from src.data.dataset import TitleDataset
+inputs, labels = mask_tokens(batch["input_ids"])
+style_loader = DataLoader(TitleDataset("train"), batch_size=64, collate_fn=MLMCollator())  # contoh Step 4
+```
+
+Uji rasio masking: `python -m tests.test_step3_masking`
+
+**Pretraining** butuh `data/processed/pretrain_*.txt` (lihat bagian 3). Sebaiknya jalankan di GPU
+(Colab/Kaggle T4), karena di CPU satu epoch bisa memakan waktu lebih dari 1 jam.
+
+```bash
+# 1. eksperimen 3 learning rate x 2 batch size (config: sweep_lrs, sweep_batch_sizes, sweep_epochs)
+python -m src.sweep --max-steps 400
+# 2. training penuh dengan konfigurasi terbaik yang dicetak oleh sweep
+python -m src.pretrain --lr 0.0005 --batch-size 128 --run-name main
+# 3. kalau runtime putus, lanjutkan dari last.pt
+python -m src.pretrain --lr 0.0005 --batch-size 128 --run-name main --resume
+# 4. cek tebakan kata
+python -m src.fill_mask checkpoints/pretrain/main/best.pt "harga [MASK] naik menjelang lebaran."
+```
+
+Training memakai AdamW (tanpa weight decay untuk bias dan LayerNorm), linear warmup 6% lalu linear
+decay, gradient clipping 1,0, dan mixed precision fp16 (otomatis aktif hanya di GPU). Setiap epoch
+dicatat loss, perplexity, dan akurasi top-1/top-5 token yang di-mask pada validasi, beserta
+contoh fill-mask.
+
+| Output | Isi |
+|---|---|
+| `checkpoints/pretrain/<run>/best.pt` | model dengan loss validasi terendah. **Ini yang dipakai Step 4** (bagikan lewat Drive) |
+| `checkpoints/pretrain/<run>/last.pt` | model + optimizer + scheduler untuk `--resume` (tiap 500 step dan tiap epoch) |
+| `reports/pretrain/<run>/history.json` | train loss tiap 50 step, metrik validasi per epoch, contoh fill-mask |
+| `reports/pretrain/<run>/loss.png` | grafik loss dan akurasi top-1/top-5 |
+| `reports/pretrain/sweep_summary.md`, `reports/figures/pretrain_sweep.png` | tabel dan grafik perbandingan sweep |
+
+Di Colab, supaya checkpoint tidak hilang saat runtime putus, arahkan folder `checkpoints/` ke Drive
+sebelum training:
+
+```python
+from google.colab import drive; drive.mount('/content/drive')
+!mkdir -p /content/drive/MyDrive/indominibert_checkpoints && ln -s /content/drive/MyDrive/indominibert_checkpoints checkpoints
+```
+
+## 7. Struktur repo
 
 ```
 .
 ├── config.py                  # SATU sumber konfigurasi (path, token, hyperparameter semua step)
 ├── requirements.txt
 ├── src/
+│   ├── model.py               # Step 2: encoder BERT, MLM head, classification head
+│   ├── overfit.py             # Step 2: tes overfit satu batch
+│   ├── collator.py            # Step 3: dynamic masking 15% (80/10/10)
+│   ├── pretrain.py            # Step 3: training loop MLM
+│   ├── sweep.py               # Step 3: eksperimen learning rate x batch size
+│   ├── fill_mask.py           # Step 3: contoh tebakan [MASK]
+│   ├── plots.py               # grafik loss untuk laporan
 │   └── data/
 │       ├── cleaning.py        # pembersihan teks + pemecahan kalimat
 │       ├── prepare.py         # load, split, anti-leakage, tulis korpus
 │       ├── tokenizer.py       # training & loading WordPiece
 │       └── dataset.py         # PretrainDataset, TitleDataset, builder DataLoader
-├── tests/test_step1_data.py   # cek kriteria selesai Step 1
+├── tests/                     # test_step1_data, test_step2_model, test_step3_masking
 ├── artifacts/tokenizer/       # tokenizer.json, vocab.txt
 ├── data/splits/               # titles_train/val/test.csv
 ├── data/processed/            # (di-gitignore) korpus pretraining + cache
-├── reports/                   # data_stats.json, tokenizer_stats.json
+├── reports/                   # statistik data, hasil overfit, figures/, pretrain/
 ├── docs/llm_log/              # Log Interaksi LLM tiap anggota
 └── click_id_dataset/          # (di-gitignore) dataset mentah dari Kaggle
 ```
 
-## 6. Keputusan data yang perlu diketahui semua anggota
+## 8. Keputusan data yang perlu diketahui semua anggota
 
 - **Sumber artikel raw = XLSX + CSV, dedup per URL.** File CSV di Kaggle terpotong (misalnya
   tribunnews hanya 1.500 dari 9.662 artikel), sedangkan XLSX lengkap (46.119 artikel, sesuai paper).
@@ -205,7 +294,7 @@ Split yang tersedia: `"train"`, `"val"`, `"test"`. Split `test` hanya dipakai un
 - **Judul duplikat** di data annotated di-dedup sebelum split. Judul yang labelnya bertentangan
   dibuang semua, supaya judul yang sama tidak muncul sekaligus di train dan test.
 
-## 7. Aturan kerja tim
+## 9. Aturan kerja tim
 
 - **Branch sendiri, commit pakai akun sendiri.** Riwayat commit masuk penilaian.
   ```bash
