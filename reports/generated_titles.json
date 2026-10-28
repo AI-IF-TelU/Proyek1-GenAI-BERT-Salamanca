@@ -2,7 +2,7 @@
   "model": "style_mlm",
   "checkpoint": "C:\\Users\\Alqi\\Gen AI\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\style_mlm.pt",
   "device": "cpu",
-  "n_per_style": 2,
+  "n_per_style": 5,
   "iterations": 5,
   "top_k": 150,
   "temperature": 0.85,
@@ -10,92 +10,425 @@
   "no_consecutive_punct": true,
   "fixed_length": null,
   "prompt": null,
-  "keywords": [
-    "persib",
-    "juara"
-  ],
+  "keywords": null,
   "seed": 42,
   "generated": [
     {
       "style": "clickbait",
       "body_len_tokens": 12,
-      "generated_text": "persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan",
+      "generated_text": "viral otak bid internet norma pare berkekuatan berakting batasan rute dipert anto",
       "token_ids": [
-        2282,
-        2253,
-        3785,
-        15741,
+        2748,
         5081,
-        9951,
         7563,
+        3941,
+        12301,
+        9691,
         13533,
         13413,
+        10656,
         4588,
-        11793,
-        12165
+        6216,
+        14493
       ],
       "avg_confidence": 1.0,
       "iterations_snapshots": [
         {
           "iteration": 1,
-          "text": "persib juara ridho penanggulangan norma lampard bid berkekuatan berakting rute penentuan kesembuhan"
+          "text": "viral meninggal ridho penanggulangan norma pare berkekuatan berakting batasan rute dipert anto"
         },
         {
           "iteration": 2,
-          "text": "persib juara diper mans appeared lampard bid berkekuatan berakting rute penentuan kesembuhan"
+          "text": "viral mans diper terkendali norma pare berkekuatan berakting batasan rute dipert anto"
         },
         {
           "iteration": 3,
-          "text": "persib juara 47 batasan butir lampard bid berkekuatan berakting rute penentuan kesembuhan"
+          "text": "viral bj butir perolehan norma pare berkekuatan berakting batasan rute dipert anto"
         },
         {
           "iteration": 4,
-          "text": "persib juara di perolehan televisi lampard bid berkekuatan berakting rute penentuan kesembuhan"
+          "text": "viral washington nampaknya lampard norma pare berkekuatan berakting batasan rute dipert anto"
         },
         {
           "iteration": 5,
-          "text": "persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan"
+          "text": "viral otak bid internet norma pare berkekuatan berakting batasan rute dipert anto"
         }
       ],
       "idx": 1
     },
     {
       "style": "clickbait",
-      "body_len_tokens": 7,
-      "generated_text": "persib juara penerapan internet berbicara meninggal norma",
+      "body_len_tokens": 13,
+      "generated_text": "curhat eropa kesembuhan perolehan resor lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan",
       "token_ids": [
-        2282,
-        2253,
-        4876,
-        3941,
-        3573,
+        11853,
+        2530,
+        12165,
+        8751,
+        12696,
+        9951,
+        3785,
         920,
-        12301
+        6402,
+        10642,
+        6813,
+        9030,
+        15984
       ],
       "avg_confidence": 1.0,
       "iterations_snapshots": [
         {
           "iteration": 1,
-          "text": "persib juara ridho penanggulangan berbicara meninggal norma"
+          "text": "curhat butir ridho penanggulangan berbicara lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan"
         },
         {
           "iteration": 2,
-          "text": "persib juara water perolehan berbicara meninggal norma"
+          "text": "curhat terserang masak youtu perbelanjaan lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan"
         },
         {
           "iteration": 3,
-          "text": "persib juara butir terkendali berbicara meninggal norma"
+          "text": "curhat menular menunda mans coba lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan"
         },
         {
           "iteration": 4,
-          "text": "persib juara semasa batasan berbicara meninggal norma"
+          "text": "curhat fest di benar televisi lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan"
         },
         {
           "iteration": 5,
-          "text": "persib juara penerapan internet berbicara meninggal norma"
+          "text": "curhat eropa kesembuhan perolehan resor lampard merilis meninggal sekjen terkendali seakan dirgantara kenamaan"
         }
       ],
       "idx": 2
+    },
+    {
+      "style": "clickbait",
+      "body_len_tokens": 9,
+      "generated_text": "fakta afghan mengurus mans berbicara di memecat dok fest",
+      "token_ids": [
+        2986,
+        7877,
+        7185,
+        10983,
+        3573,
+        103,
+        14152,
+        1472,
+        11666
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "fakta butir ridho penanggulangan berbicara di memecat dok fest"
+        },
+        {
+          "iteration": 2,
+          "text": "fakta kamil masak diper berbicara di memecat dok fest"
+        },
+        {
+          "iteration": 3,
+          "text": "fakta sunan menjerat penyanyi berbicara di memecat dok fest"
+        },
+        {
+          "iteration": 4,
+          "text": "fakta 47 pada youtu berbicara di memecat dok fest"
+        },
+        {
+          "iteration": 5,
+          "text": "fakta afghan mengurus mans berbicara di memecat dok fest"
+        }
+      ],
+      "idx": 3
+    },
+    {
+      "style": "clickbait",
+      "body_len_tokens": 13,
+      "generated_text": "begini mengajak semasa kebers water joong ridho hamba diper waspada dil melambat 47",
+      "token_ids": [
+        4601,
+        2753,
+        7865,
+        8877,
+        7197,
+        14323,
+        15377,
+        15741,
+        731,
+        6570,
+        310,
+        14056,
+        5333
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "begini soeharto butir penanggulangan appeared joong ridho hamba diper waspada dil melambat 47"
+        },
+        {
+          "iteration": 2,
+          "text": "begini sunan masak youtu penentuan joong ridho hamba diper waspada dil melambat 47"
+        },
+        {
+          "iteration": 3,
+          "text": "begini transaksi a50 ibadah gas joong ridho hamba diper waspada dil melambat 47"
+        },
+        {
+          "iteration": 4,
+          "text": "begini washington pada coba perguruan joong ridho hamba diper waspada dil melambat 47"
+        },
+        {
+          "iteration": 5,
+          "text": "begini mengajak semasa kebers water joong ridho hamba diper waspada dil melambat 47"
+        }
+      ],
+      "idx": 4
+    },
+    {
+      "style": "clickbait",
+      "body_len_tokens": 12,
+      "generated_text": "ternyata menjer washington kewar appeared menjerat pada dikab benar menunda spr trip",
+      "token_ids": [
+        1723,
+        13525,
+        7132,
+        15123,
+        12395,
+        8600,
+        196,
+        3482,
+        1104,
+        6204,
+        9832,
+        14572
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "ternyata butir a50 penanggulangan appeared menjerat pada dikab benar menunda spr trip"
+        },
+        {
+          "iteration": 2,
+          "text": "ternyata sunan fil youtu appeared menjerat pada dikab benar menunda spr trip"
+        },
+        {
+          "iteration": 3,
+          "text": "ternyata pembinaan diperuntukkan nasution appeared menjerat pada dikab benar menunda spr trip"
+        },
+        {
+          "iteration": 4,
+          "text": "ternyata transaksi masak coba appeared menjerat pada dikab benar menunda spr trip"
+        },
+        {
+          "iteration": 5,
+          "text": "ternyata menjer washington kewar appeared menjerat pada dikab benar menunda spr trip"
+        }
+      ],
+      "idx": 5
+    },
+    {
+      "style": "non-clickbait",
+      "body_len_tokens": 7,
+      "generated_text": "menteri meninggal merilis penanggulangan norma lampard bid",
+      "token_ids": [
+        792,
+        920,
+        3785,
+        4192,
+        12301,
+        9951,
+        7563
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "menteri terkendali butir penanggulangan norma lampard bid"
+        },
+        {
+          "iteration": 2,
+          "text": "menteri batasan ridho penanggulangan norma lampard bid"
+        },
+        {
+          "iteration": 3,
+          "text": "menteri melambat berkekuatan penanggulangan norma lampard bid"
+        },
+        {
+          "iteration": 4,
+          "text": "menteri mans di penanggulangan norma lampard bid"
+        },
+        {
+          "iteration": 5,
+          "text": "menteri meninggal merilis penanggulangan norma lampard bid"
+        }
+      ],
+      "idx": 1
+    },
+    {
+      "style": "non-clickbait",
+      "body_len_tokens": 9,
+      "generated_text": "jadwal warga coba youtu water benar otak dok fest",
+      "token_ids": [
+        2789,
+        654,
+        3007,
+        2617,
+        7197,
+        1104,
+        5081,
+        1472,
+        11666
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "jadwal diper ridho terkendali water benar otak dok fest"
+        },
+        {
+          "iteration": 2,
+          "text": "jadwal mengajak a50 berakting water benar otak dok fest"
+        },
+        {
+          "iteration": 3,
+          "text": "jadwal batasan butir internet water benar otak dok fest"
+        },
+        {
+          "iteration": 4,
+          "text": "jadwal berkekuatan perguruan sekjen water benar otak dok fest"
+        },
+        {
+          "iteration": 5,
+          "text": "jadwal warga coba youtu water benar otak dok fest"
+        }
+      ],
+      "idx": 2
+    },
+    {
+      "style": "non-clickbait",
+      "body_len_tokens": 7,
+      "generated_text": "menteri jean terkendali perolehan di kenamaan berkekuatan",
+      "token_ids": [
+        792,
+        15869,
+        10642,
+        8751,
+        103,
+        15984,
+        13533
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "menteri butir ridho perolehan di kenamaan berkekuatan"
+        },
+        {
+          "iteration": 2,
+          "text": "menteri batasan diper perolehan di kenamaan berkekuatan"
+        },
+        {
+          "iteration": 3,
+          "text": "menteri sunan masak perolehan di kenamaan berkekuatan"
+        },
+        {
+          "iteration": 4,
+          "text": "menteri afghan nampaknya perolehan di kenamaan berkekuatan"
+        },
+        {
+          "iteration": 5,
+          "text": "menteri jean terkendali perolehan di kenamaan berkekuatan"
+        }
+      ],
+      "idx": 3
+    },
+    {
+      "style": "non-clickbait",
+      "body_len_tokens": 13,
+      "generated_text": "hasil menjer kebers kewar angkatan menjerat hamba dikab emisi butir dipert anto memecat",
+      "token_ids": [
+        751,
+        13525,
+        8877,
+        15123,
+        3824,
+        8600,
+        15741,
+        3482,
+        8898,
+        11576,
+        6216,
+        14493,
+        14152
+      ],
+      "avg_confidence": 0.9239,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "hasil batasan ridho berakting appeared menjerat hamba dikab emisi butir dipert anto memecat"
+        },
+        {
+          "iteration": 2,
+          "text": "hasil pagi diper sekjen perguruan menjerat hamba dikab emisi butir dipert anto memecat"
+        },
+        {
+          "iteration": 3,
+          "text": "hasil afghan masak mans kasar menjerat hamba dikab emisi butir dipert anto memecat"
+        },
+        {
+          "iteration": 4,
+          "text": "hasil transaksi haf gas berbicara menjerat hamba dikab emisi butir dipert anto memecat"
+        },
+        {
+          "iteration": 5,
+          "text": "hasil menjer kebers kewar angkatan menjerat hamba dikab emisi butir dipert anto memecat"
+        }
+      ],
+      "idx": 4
+    },
+    {
+      "style": "non-clickbait",
+      "body_len_tokens": 12,
+      "generated_text": "menteri mengajak pada ub berbicara joong mengurus 47 diper rute shaf sebut",
+      "token_ids": [
+        792,
+        2753,
+        196,
+        5605,
+        3573,
+        14323,
+        7185,
+        5333,
+        731,
+        4588,
+        13214,
+        2226
+      ],
+      "avg_confidence": 1.0,
+      "iterations_snapshots": [
+        {
+          "iteration": 1,
+          "text": "menteri batasan ridho berakting berbicara joong mengurus 47 diper rute shaf sebut"
+        },
+        {
+          "iteration": 2,
+          "text": "menteri pantau sekjen januari berbicara joong mengurus 47 diper rute shaf sebut"
+        },
+        {
+          "iteration": 3,
+          "text": "menteri kamil dil eropa berbicara joong mengurus 47 diper rute shaf sebut"
+        },
+        {
+          "iteration": 4,
+          "text": "menteri masak a50 menag berbicara joong mengurus 47 diper rute shaf sebut"
+        },
+        {
+          "iteration": 5,
+          "text": "menteri mengajak pada ub berbicara joong mengurus 47 diper rute shaf sebut"
+        }
+      ],
+      "idx": 5
     }
   ]
 }
