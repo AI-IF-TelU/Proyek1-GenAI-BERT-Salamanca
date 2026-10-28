@@ -1,0 +1,11 @@
+============================================================
+  HASIL GENERASI JUDUL - IndoMiniBERT Step 5
+============================================================
+
+[CL] mans,, penanggulangan norma,,,, aguukulerkan seper
+[CL] mans agu, penanggulangan norma,,
+[CL] lampard,,, norma,, berkekuatan, agu
+[CL] mansuf,, norma,, berkekuatan, agu
+[CL] dipahami seper,, norma,,,, agu bacaonc seper penanggulangan
+
+Total judul: 5

@@ -1,0 +1,31 @@
+============================================================
+  STEP 5 - EVALUASI HASIL GENERASI IndoMiniBERT
+============================================================
+Jumlah judul yang dievaluasi: 4
+
+--- 1. NOVELTY (Kebaruan) ---
+  Semua gaya   : 100.00% (4/4)
+  Clickbait    : 100.00%  (2/2)
+  Non-clickbait: 100.00%  (2/2)
+
+--- 2. DIVERSITY (Keberagaman) ---
+  Distinct-1   : 0.275
+  Distinct-2   : 0.4722
+  Self-BLEU    : 0.6793 (lebih rendah = lebih beragam)
+
+--- 3. STYLE ACCURACY (Kualitas Gaya via Classifier) ---
+  Akurasi gaya (semua) : 0.5
+  Clickbait accuracy   : 0.0
+  Non-CB accuracy      : 1.0
+
+--- 4. PERPLEXITY (Kelancaran) ---
+  Mean perplexity  : 4.9254 (lebih rendah = lebih lancar)
+  Median perplexity: 4.8281
+
+--- JUDUL YANG DIHASILKAN ---
+  [CL] mans,, penanggulangan norma,,,, aguukulerkan seper
+  [CL] mans agu, penanggulangan norma,,
+  [NO] dipahami,,, norma,, berkekuatan, agu
+  [NO] mansuf,, norma,, berkekuatan, agu
+
+============================================================
