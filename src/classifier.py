@@ -18,6 +18,7 @@ Output:
 """
 
 import argparse
+import time
 import json
 import random
 from pathlib import Path
@@ -100,36 +101,65 @@ def train_one_epoch(model, loader, optimizer, scheduler, device):
     return total_loss / max(len(loader.dataset), 1)
 
 
+def _fmt_duration(seconds: float) -> str:
+    """Format detik ke string mm:ss."""
+    m, s = divmod(int(seconds), 60)
+    h, m = divmod(m, 60)
+    if h > 0:
+        return f"{h:d}j {m:02d}m {s:02d}s"
+    return f"{m:02d}m {s:02d}s"
+
+
 def train_classifier(model, train_loader, val_loader, device, epochs, lr):
     """Training loop lengkap; simpan state terbaik berdasarkan val F1."""
-    total_steps = max(1, len(train_loader) * epochs)
+    total_steps = max(20, len(train_loader) * epochs)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=classifier_cfg.weight_decay)
     scheduler = create_linear_warmup_scheduler(optimizer, total_steps)
 
     history = []
     best_val_f1 = -1.0
     best_state = None
+    epoch_durations: list[float] = []
+    train_start = time.time()
 
     for epoch in range(1, epochs + 1):
+        epoch_start = time.time()
         train_loss = train_one_epoch(model, train_loader, optimizer, scheduler, device)
         val_metrics = evaluate(model, val_loader, device)
+        epoch_elapsed = time.time() - epoch_start
+        epoch_durations.append(epoch_elapsed)
+
+        # Hitung ETA berdasarkan rata-rata durasi epoch
+        avg_epoch_sec = sum(epoch_durations) / len(epoch_durations)
+        remaining_epochs = epochs - epoch
+        eta_sec = avg_epoch_sec * remaining_epochs
+        total_elapsed = time.time() - train_start
+
         history.append({
             "epoch": epoch,
             "train_loss": train_loss,
             "val_loss": val_metrics["loss"],
             "val_accuracy": val_metrics["accuracy"],
             "val_f1_macro": val_metrics["f1_macro"],
+            "epoch_duration_sec": round(epoch_elapsed, 2),
         })
+        eta_str = _fmt_duration(eta_sec) if remaining_epochs > 0 else "selesai"
         print(
-            f"  epoch {epoch}/{epochs}: "
+            f"  [{_fmt_duration(total_elapsed)} elapsed | ETA {eta_str}] "
+            f"epoch {epoch}/{epochs}: "
             f"train_loss={train_loss:.4f}  "
             f"val_acc={val_metrics['accuracy']:.4f}  "
-            f"val_f1={val_metrics['f1_macro']:.4f}",
+            f"val_f1={val_metrics['f1_macro']:.4f}  "
+            f"(epoch: {epoch_elapsed:.1f}s)",
             flush=True,
         )
         if val_metrics["f1_macro"] > best_val_f1:
             best_val_f1 = val_metrics["f1_macro"]
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+
+    total_time = time.time() - train_start
+    print(f"  Training selesai dalam {_fmt_duration(total_time)} "
+          f"| Best val_f1={best_val_f1:.4f}", flush=True)
 
     if best_state is None:
         raise RuntimeError("Training tidak menghasilkan checkpoint classifier")
