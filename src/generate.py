@@ -1,32 +1,35 @@
 """
 Step 5 - Generasi Judul Berita dengan IndoMiniBERT (Mask-Predict).
 
-Algoritma:
-  1. Mulai dari template [CLS] [STYLE] [MASK] ... [MASK] [SEP] dengan panjang
-     yang di-sample dari distribusi histogram judul di tokenizer_stats.json.
-  2. Lakukan `generation_cfg.iterations` putaran mask-predict:
-       a. Forward style_mlm -> logits untuk setiap posisi [MASK].
-       b. Setiap posisi yang masih [MASK] digantikan token dengan probabilitas
-          tertinggi (greedy) atau top-k sampling (temperature > 0).
-       c. Pada iterasi selanjutnya, re-mask token dengan confidence terendah
-          sebesar floor(ratio * n_mask_positions) token.
-  3. Decode hasil akhir menjadi teks.
+Algoritma Mask-Predict Disempurnakan:
+  1. Mulai dari template [CLS] [STYLE] [STARTER/PROMPT] [MASK] ... [MASK] [SEP]
+     dengan panjang yang di-sample dari distribusi histogram judul.
+  2. Inisialisasi Sekuensial (Pass 0): menebak posisi [MASK] secara berurutan
+     agar kata saling memperhatikan konteks (tidak independen).
+  3. Larangan Subword & Punctuation:
+     - Melarang subword kelanjutan ('##...') agar tidak menghasilkan kata buatan
+       seperti 'budiocoran', 'dipahamiana', 'norma2onc', dll.
+     - Melarang tanda baca beruntun (,,) dan membatasi maksimal 1 koma per judul.
+  4. Repetition Penalty:
+     - Mencegah kata yang sama diulang dalam satu judul.
+     - Mencegah kata frekuensi tinggi mendominasi semua judul dalam satu sesi.
+  5. Refinement Mask-Predict:
+     - Melakukan re-masking pada token dengan confidence terendah dan menebak ulang
+       dengan konteks dua arah.
+  6. Decode & Clean: merapikan spasi dan tanda baca akhir.
 
 Cara jalankan (dari root repo):
-    python -m src.generate --style clickbait --n 10
-    python -m src.generate --style non-clickbait --n 5 --temp 0.8 --top-k 30
-    python -m src.generate --style clickbait --n 8 --length 12
+    python -m src.generate --style clickbait --n 5
+    python -m src.generate --style non-clickbait --n 5
+    python -m src.generate --style both --n 5 --temp 0.85 --top-k 150
 
-    Tanpa checkpoint (mode demo random):
-    python -m src.generate --no-checkpoint --n 5
+    Dengan kata kunci / prompt (Mode 1 & 2):
+    python -m src.generate --prompt "presiden jokowi resmikan [MASK] [MASK] di jakarta"
+    python -m src.generate --keywords "persib, juara" --style clickbait
 
 Output:
     reports/generated_titles.json    - hasil generasi dalam JSON
     reports/generated_titles.txt     - hasil generasi dalam plain text
-
-Cara Generasi Manual (tanpa menjalankan script):
-  Lihat docstring fungsi generate_titles_manual() di bawah untuk penjelasan
-  langkah demi langkah cara melakukan mask-predict secara interaktif.
 """
 
 from __future__ import annotations
@@ -81,7 +84,7 @@ def load_length_histogram() -> List[int]:
     return hist
 
 
-def sample_title_length(histogram: List[int], min_len: int = 5, max_len: int = 20) -> int:
+def sample_title_length(histogram: List[int], min_len: int = 6, max_len: int = 16) -> int:
     """
     Sampel panjang judul (jumlah body token, di luar special tokens) dari histogram.
     min_len dan max_len membatasi panjang agar hasil tidak terlalu pendek/panjang.
@@ -108,134 +111,13 @@ def sample_title_length(histogram: List[int], min_len: int = 5, max_len: int = 2
 
 def generate_titles_manual():
     """
-    PANDUAN GENERASI MANUAL - Mask-Predict Step by Step
-    =====================================================
-    Fungsi ini TIDAK dijalankan secara otomatis. Gunakan sebagai referensi
-    untuk memahami cara kerja algoritma mask-predict dan cara menjalankannya
-    secara interaktif di Python shell atau Jupyter Notebook.
-
-    ================================================================
-    LANGKAH 1: Import dan setup
-    ================================================================
-
-        import torch
-        import json
-        from config import CB_ID, NCB_ID, CLS_ID, SEP_ID, MASK_ID, paths, style_cfg
-        from src.data.tokenizer import load_tokenizer
-        from src.model import BertForMaskedLM
-
-        device = torch.device("cpu")   # atau "cuda" jika ada GPU
-        tok = load_tokenizer()
-        model = BertForMaskedLM().to(device)
-
-    ================================================================
-    LANGKAH 2: Muat checkpoint style_mlm.pt
-    ================================================================
-
-        checkpoint_path = paths.checkpoints_dir / "style_mlm.pt"
-        ckpt = torch.load(checkpoint_path, map_location=device)
-        model.load_state_dict(ckpt["model_state"])
-        model.eval()
-        print("Checkpoint dimuat!")
-
-    ================================================================
-    LANGKAH 3: Buat template awal (semua body token = MASK)
-    ================================================================
-
-        # Pilih gaya: CB_ID=5 (clickbait), NCB_ID=6 (non-clickbait)
-        style_id = CB_ID      # clickbait
-        body_len = 10         # panjang judul dalam token (di luar special tokens)
-        max_len = style_cfg.max_len   # 48
-
-        # Format: [CLS] [STYLE] [MASK] [MASK] ... [MASK] [SEP]
-        token_ids = [CLS_ID, style_id] + [MASK_ID] * body_len + [SEP_ID]
-        seq_len = len(token_ids)
-        print("Template awal:", token_ids)
-
-    ================================================================
-    LANGKAH 4: Buat tensor input untuk model
-    ================================================================
-
-        input_ids = torch.full((1, max_len), 0, dtype=torch.long, device=device)
-        attn_mask = torch.zeros((1, max_len), dtype=torch.long, device=device)
-        input_ids[0, :seq_len] = torch.tensor(token_ids, dtype=torch.long)
-        attn_mask[0, :seq_len] = 1
-
-    ================================================================
-    LANGKAH 5: Jalankan mask-predict secara iteratif
-    ================================================================
-
-        n_iterations = 10
-        body_positions = list(range(2, seq_len - 1))   # posisi body (setelah [CLS][STYLE])
-
-        with torch.no_grad():
-            for iteration in range(n_iterations):
-                # 5a. Forward pass
-                hidden_states = model.bert(input_ids, attn_mask)
-                logits = model.mlm_head(hidden_states)    # shape: (1, max_len, vocab_size)
-
-                # 5b. Isi setiap posisi yang masih MASK
-                probs = torch.softmax(logits[0], dim=-1)  # shape: (max_len, vocab_size)
-                new_ids = input_ids[0].clone()
-                confidences = torch.zeros(max_len, device=device)
-
-                for pos in body_positions:
-                    # Ambil token dengan probabilitas tertinggi (greedy)
-                    top_id = probs[pos].argmax().item()
-                    new_ids[pos] = top_id
-                    confidences[pos] = probs[pos, top_id].item()
-
-                input_ids[0] = new_ids
-
-                # 5c. Re-mask token dengan confidence terendah (kecuali iterasi terakhir)
-                if iteration < n_iterations - 1:
-                    remask_ratio = 1.0 - (iteration + 1) / n_iterations
-                    n_remask = max(1, int(remask_ratio * len(body_positions)))
-                    body_conf = sorted([(confidences[p].item(), p) for p in body_positions])
-                    for _, pos in body_conf[:n_remask]:
-                        input_ids[0, pos] = MASK_ID
-
-                # Decode dan cetak status iterasi
-                snap = [tok.id_to_token(input_ids[0, p].item()) for p in body_positions]
-                print(f"Iter {iteration+1:2d}: {' '.join(t or '?' for t in snap)}")
-
-    ================================================================
-    LANGKAH 6: Decode hasil akhir menjadi teks
-    ================================================================
-
-        final_ids = input_ids[0, 2:seq_len-1].tolist()
-        hasil_teks = tok.decode(final_ids, skip_special_tokens=True)
-        print(f"Hasil generasi: {hasil_teks}")
-
-    ================================================================
-    LANGKAH 7 (Opsional): Top-k sampling dengan temperature
-    ================================================================
-
-        # Ganti langkah greedy di 5b dengan ini untuk hasil yang lebih beragam:
-        temperature = 0.8
-        top_k = 50
-
-        scaled_logits = logits[0, pos] / temperature
-        topk_vals, topk_idx = scaled_logits.topk(top_k)
-        filtered = torch.full_like(scaled_logits, float("-inf"))
-        filtered[topk_idx] = topk_vals
-        chosen_id = torch.multinomial(filtered.softmax(-1), 1).item()
-        new_ids[pos] = chosen_id
-        confidences[pos] = filtered.softmax(-1)[chosen_id].item()
-
-    ================================================================
-    CATATAN PENTING
-    ================================================================
-    - Semakin banyak iterasi, semakin koheren hasilnya (tapi lambat).
-    - Temperature < 1.0 -> lebih deterministik; > 1.0 -> lebih beragam/acak.
-    - Top-k = 1 setara dengan greedy decoding.
-    - Judul yang baik biasanya memiliki avg_confidence > 0.3.
+    Fungsi dokumentasi langkah demi langkah cara melakukan generasi mask-predict.
     """
-    pass   # Fungsi ini hanya dokumentasi
+    pass
 
 
 # ---------------------------------------------------------------------------
-# Fungsi pembersihan & utilitas tanda baca
+# Pembersihan & Utilitas Token
 # ---------------------------------------------------------------------------
 
 def clean_generated_headline(text: str) -> str:
@@ -249,17 +131,11 @@ def clean_generated_headline(text: str) -> str:
     """
     if not text:
         return ""
-    # Spasi sebelum tanda baca: "kata ," -> "kata,"
     text = re.sub(r"\s+([.,!?:;])", r"\1", text)
-    # Tanda baca berulang berurutan: ",,,," -> ",", ".. " -> "."
     text = re.sub(r"([.,!?:;])\s*\1+", r"\1", text)
-    # Kombinasi koma diikuti tanda baca akhir: ",." -> "."
     text = re.sub(r",\s*([.!?])", r"\1", text)
-    # Tanda baca di awal kalimat: ", presiden ..." -> "presiden ..."
     text = re.sub(r"^[\s,.\-:;]+", "", text)
-    # Tanda koma / titik dua gantung di akhir kalimat
     text = re.sub(r"[\s,;:\-]+$", "", text)
-    # Rapikan spasi ganda
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
@@ -278,8 +154,57 @@ def get_punctuation_token_ids(tokenizer) -> Set[int]:
     return punct_ids
 
 
+def get_banned_token_ids(tokenizer) -> Set[int]:
+    """
+    Ambil ID token yang dilarang muncul dalam badan judul:
+    1. Special tokens ([PAD], [UNK], [CLS], [SEP], [MASK], [CB], [NCB])
+    2. Subword kelanjutan (diawali '##') agar tidak menghasilkan kata Frankenstein
+       seperti 'budiocoran', 'dipahamiana', 'otakorasi', 'norma2onc', dll.
+    3. Noise sisa scraping portal (tanggal 'agu', serpihan 'seper', 'kej', 'tri', dll.)
+    4. Token satu huruf acak yang bukan kata tugas baku.
+    """
+    banned = set()
+    noise_words = {
+        "agu", "seper", "kej", "tri", "pg", "mrt", "gemp", "na", "bn",
+        "onc", "baca", "erkan", "dian", "torat", "annya", "punya",
+    }
+    for tid in range(tokenizer.get_vocab_size()):
+        if tid <= NCB_ID:
+            banned.add(tid)
+            continue
+        tok = tokenizer.id_to_token(tid)
+        if not tok:
+            banned.add(tid)
+            continue
+        if tok.startswith("##"):
+            banned.add(tid)
+            continue
+        if tok in noise_words:
+            banned.add(tid)
+            continue
+        if len(tok) <= 1 and tok not in ("di", "ke"):
+            banned.add(tid)
+            continue
+
+    return banned
+
+
+STYLE_STARTERS = {
+    "clickbait": [
+        "viral", "ternyata", "begini", "fakta", "rahasia", "heboh",
+        "nekat", "curhat", "terungkap", "alasan", "bikin", "penasaran",
+        "kaget", "reaksi", "misteri", "pengakuan",
+    ],
+    "non-clickbait": [
+        "pemerintah", "presiden", "polisi", "menteri", "kpk", "dpr",
+        "bmkg", "kasus", "indonesia", "jadwal", "laga", "hasil",
+        "pemprov", "jakarta", "kemenkes",
+    ],
+}
+
+
 # ---------------------------------------------------------------------------
-# Fungsi generasi inti
+# Fungsi Generasi Inti
 # ---------------------------------------------------------------------------
 
 def mask_predict_generate(
@@ -288,171 +213,207 @@ def mask_predict_generate(
     style_id: int,
     body_len: int,
     device: torch.device,
-    n_iterations: int = 10,
-    top_k: int = 50,
-    temperature: float = 1.0,
-    repetition_penalty: float = 1.3,
+    prompt: Optional[str] = None,
+    keywords: Optional[List[str]] = None,
+    n_iterations: int = 5,
+    top_k: int = 150,
+    temperature: float = 0.85,
+    repetition_penalty: float = 1.6,
     no_consecutive_punct: bool = True,
+    banned_token_ids: Optional[Set[int]] = None,
     punct_token_ids: Optional[Set[int]] = None,
+    batch_used_tokens: Optional[Set[int]] = None,
 ) -> dict:
     """
-    Hasilkan satu judul menggunakan algoritma mask-predict dengan repetition penalty
-    dan aturan larangan tanda baca berurutan.
-
-    Args:
-        model               : BertForMaskedLM yang sudah di-load dan .eval()
-        tokenizer           : tokenizers.Tokenizer
-        style_id            : CB_ID (5) untuk clickbait, NCB_ID (6) untuk non-clickbait
-        body_len            : panjang judul dalam token (di luar [CLS], [STYLE], [SEP])
-        device              : torch.device
-        n_iterations        : jumlah putaran mask-predict
-        top_k               : filter top-k kandidat token saat sampling (1 = greedy)
-        temperature         : suhu sampling; < 1.0 lebih confident; > 1.0 lebih acak
-        repetition_penalty  : penalti probabilitas untuk token yang sudah muncul (> 1.0)
-        no_consecutive_punct: larang tanda baca berturut-turut (misal koma ganda ,,)
-        punct_token_ids     : set ID token tanda baca (diambil otomatis jika None)
-
-    Returns:
-        dict berisi generated_text, token_ids, iterations_snapshots, avg_confidence
+    Hasilkan satu judul menggunakan algoritma mask-predict yang disempurnakan:
+    1. Melarang subword kelanjutan ('##...') agar tidak menghasilkan kata aneh.
+    2. Melarang tanda baca beruntun dan membatasi maksimal 1 tanda koma.
+    3. Inisialisasi sekuensial (autoregressive pass) agar kata saling berkorelasi.
+    4. Refinement bertahap via mask-predict pada token ber-confidence terendah.
+    5. Mendukung prompt awal / fill-mask / kata kunci jika disediakan pengguna.
     """
     max_len = style_cfg.max_len
     seq_len = min(2 + body_len + 1, max_len)
     body_len = seq_len - 3
 
+    if banned_token_ids is None:
+        banned_token_ids = get_banned_token_ids(tokenizer)
     if punct_token_ids is None:
         punct_token_ids = get_punctuation_token_ids(tokenizer)
+    if batch_used_tokens is None:
+        batch_used_tokens = set()
 
     comma_id = tokenizer.token_to_id(",")
     colon_id = tokenizer.token_to_id(":")
-
-    # Template: [CLS] [STYLE] [MASK]...body...[MASK] [SEP]
-    token_ids = [CLS_ID, style_id] + [MASK_ID] * body_len + [SEP_ID]
+    style_name = LABEL_NAMES[1 if style_id == CB_ID else 0]
 
     input_ids = torch.full((1, max_len), PAD_ID, dtype=torch.long, device=device)
     attn_mask = torch.zeros((1, max_len), dtype=torch.long, device=device)
-    input_ids[0, :seq_len] = torch.tensor(token_ids, dtype=torch.long, device=device)
+
+    fixed_positions = set()
+
+    if prompt:
+        # Mode 1: Fill-mask / Custom Prompt
+        encoded = tokenizer.encode(prompt.lower(), add_special_tokens=False)
+        p_ids = encoded.ids
+        body_len = max(len(p_ids), body_len)
+        seq_len = min(2 + body_len + 1, max_len)
+        token_list = [CLS_ID, style_id] + p_ids[:seq_len - 3]
+        while len(token_list) < seq_len - 1:
+            token_list.append(MASK_ID)
+        token_list.append(SEP_ID)
+        for idx_p, tid in enumerate(token_list[2:-1], start=2):
+            if tid != MASK_ID:
+                fixed_positions.add(idx_p)
+        input_ids[0, :seq_len] = torch.tensor(token_list, dtype=torch.long, device=device)
+    elif keywords:
+        # Mode 2: Kata kunci menjadi judul
+        kw_tokens = []
+        for kw in keywords:
+            kw_tokens.extend(tokenizer.encode(kw.lower(), add_special_tokens=False).ids)
+        token_list = [CLS_ID, style_id] + [MASK_ID] * body_len + [SEP_ID]
+        for idx_k, kid in enumerate(kw_tokens[:body_len]):
+            token_list[2 + idx_k] = kid
+            fixed_positions.add(2 + idx_k)
+        input_ids[0, :seq_len] = torch.tensor(token_list, dtype=torch.long, device=device)
+    else:
+        # Mode 3: Generasi Bebas terpandu (pilih starter alami sesuai gaya)
+        starter_candidates = STYLE_STARTERS.get(style_name, ["indonesia"])
+        starter_word = random.choice(starter_candidates)
+        s_id = tokenizer.token_to_id(starter_word)
+        if s_id is not None:
+            token_list = [CLS_ID, style_id, s_id] + [MASK_ID] * (body_len - 1) + [SEP_ID]
+            fixed_positions.add(2)
+        else:
+            token_list = [CLS_ID, style_id] + [MASK_ID] * body_len + [SEP_ID]
+        input_ids[0, :seq_len] = torch.tensor(token_list, dtype=torch.long, device=device)
+
     attn_mask[0, :seq_len] = 1
-
     body_positions = list(range(2, seq_len - 1))
-    snapshots = []
+    current_tokens = {input_ids[0, p].item() for p in fixed_positions}
 
+    def _sample_from_logits(logits_pos: torch.Tensor, pos: int, current_seq: Set[int]) -> int:
+        cur_l = logits_pos.clone()
+
+        # 1. Larang token terlarang (special token, ## subword, noise)
+        for b_id in banned_token_ids:
+            cur_l[b_id] = float("-inf")
+
+        # 2. Aturan tanda baca
+        if no_consecutive_punct:
+            if pos == body_positions[0]:
+                for p_id in punct_token_ids:
+                    cur_l[p_id] = float("-inf")
+
+            if pos > body_positions[0]:
+                prev_tok = input_ids[0, pos - 1].item()
+                if prev_tok in punct_token_ids:
+                    for p_id in punct_token_ids:
+                        cur_l[p_id] = float("-inf")
+
+            if pos == body_positions[-1]:
+                if comma_id is not None:
+                    cur_l[comma_id] = float("-inf")
+                if colon_id is not None:
+                    cur_l[colon_id] = float("-inf")
+
+        # Batasi koma max 1 dalam satu judul
+        if comma_id is not None and comma_id in current_seq:
+            cur_l[comma_id] = float("-inf")
+
+        # 3. Larang pengulangan token yang sama berturut-turut
+        if pos > body_positions[0]:
+            prev_tok = input_ids[0, pos - 1].item()
+            if prev_tok not in (PAD_ID, MASK_ID):
+                cur_l[prev_tok] = float("-inf")
+
+        # 4. Repetition Penalty dalam satu judul
+        if repetition_penalty > 1.0:
+            for t in current_seq:
+                if t > NCB_ID and t != MASK_ID:
+                    if cur_l[t] > 0:
+                        cur_l[t] /= repetition_penalty
+                    else:
+                        cur_l[t] *= repetition_penalty
+
+        # 5. Penalti lembut untuk token yang sering muncul di batch sebelumnya
+        for t in batch_used_tokens:
+            if t > NCB_ID and t != MASK_ID:
+                if cur_l[t] > 0:
+                    cur_l[t] /= 1.25
+                else:
+                    cur_l[t] *= 1.25
+
+        # 6. Sampling (Greedy vs Top-K Temperature)
+        if temperature <= 0.0 or top_k <= 1:
+            return int(cur_l.argmax().item())
+
+        scaled = cur_l / max(temperature, 1e-5)
+        topk_vals, topk_idx = scaled.topk(min(top_k, model_cfg.vocab_size))
+        filtered = torch.full_like(scaled, float("-inf"))
+        filtered[topk_idx] = topk_vals
+        return int(torch.multinomial(filtered.softmax(-1), 1).item())
+
+    # -----------------------------------------------------------------------
+    # Fase 1: Sequential Autoregressive Initialization
+    # -----------------------------------------------------------------------
     with torch.no_grad():
-        for iteration in range(n_iterations):
-            # Forward pass
-            hidden_states = model.bert(input_ids, attn_mask)
-            logits = model.mlm_head(hidden_states)
+        for pos in body_positions:
+            if pos in fixed_positions:
+                continue
+            out = model(input_ids, attn_mask)
+            chosen_id = _sample_from_logits(out[0, pos], pos, current_tokens)
+            input_ids[0, pos] = chosen_id
+            current_tokens.add(chosen_id)
 
-            new_ids = input_ids[0].clone()
+    # -----------------------------------------------------------------------
+    # Fase 2: Mask-Predict Refinement
+    # -----------------------------------------------------------------------
+    snapshots = []
+    with torch.no_grad():
+        for it in range(n_iterations):
+            out = model(input_ids, attn_mask)
             confidences = torch.zeros(max_len, device=device)
 
             for pos in body_positions:
-                cur_logits = logits[0, pos].clone()
+                prob = out[0, pos].softmax(-1)[input_ids[0, pos].item()].item()
+                confidences[pos] = prob
 
-                # 1. Larang Special Tokens (0..NCB_ID) muncul di badan judul
-                cur_logits[:NCB_ID + 1] = float("-inf")
-
-                # 2. Aturan Larangan Tanda Baca Berurutan & Posisi Ekstrem
-                if no_consecutive_punct:
-                    # Posisi awal (kata pertama judul) tidak boleh tanda baca
-                    if pos == body_positions[0]:
-                        for p_id in punct_token_ids:
-                            cur_logits[p_id] = float("-inf")
-
-                    # Posisi setelah tanda baca tidak boleh tanda baca lagi (hindari ,, atau ,.)
-                    if pos > body_positions[0]:
-                        prev_tok = new_ids[pos - 1].item()
-                        if prev_tok in punct_token_ids:
-                            for p_id in punct_token_ids:
-                                cur_logits[p_id] = float("-inf")
-
-                    # Posisi terakhir sebelum [SEP] tidak boleh koma atau titik dua gantung
-                    if pos == body_positions[-1]:
-                        if comma_id is not None:
-                            cur_logits[comma_id] = float("-inf")
-                        if colon_id is not None:
-                            cur_logits[colon_id] = float("-inf")
-
-                # 3. Larang token yang sama persis berturut-turut (misal: "norma norma")
-                if pos > body_positions[0]:
-                    prev_tok = new_ids[pos - 1].item()
-                    if prev_tok not in (PAD_ID, MASK_ID):
-                        cur_logits[prev_tok] = float("-inf")
-
-                # 4. Batasi tanda koma (maksimal 1 koma di seluruh judul)
-                if comma_id is not None:
-                    comma_count = sum(
-                        1 for p in body_positions if p != pos and new_ids[p].item() == comma_id
-                    )
-                    if comma_count >= 1:
-                        cur_logits[comma_id] = float("-inf")
-
-                # 5. Repetition Penalty untuk token yang sudah muncul di kalimat
-                if repetition_penalty > 1.0:
-                    for p in body_positions:
-                        if p != pos:
-                            tok_in_seq = new_ids[p].item()
-                            if tok_in_seq > NCB_ID and tok_in_seq != MASK_ID:
-                                if cur_logits[tok_in_seq] > 0:
-                                    cur_logits[tok_in_seq] /= repetition_penalty
-                                else:
-                                    cur_logits[tok_in_seq] *= repetition_penalty
-
-                # 6. Sampling (Greedy atau Top-k dengan temperature)
-                if temperature <= 0.0 or top_k <= 1:
-                    chosen_id = int(cur_logits.argmax().item())
-                else:
-                    scaled = cur_logits / max(temperature, 1e-5)
-                    topk_vals, topk_idx = scaled.topk(min(top_k, model_cfg.vocab_size))
-                    filtered = torch.full_like(scaled, float("-inf"))
-                    filtered[topk_idx] = topk_vals
-                    chosen_id = int(torch.multinomial(filtered.softmax(-1), 1).item())
-
-                new_ids[pos] = chosen_id
-                probs = cur_logits.softmax(-1)
-                confidences[pos] = probs[chosen_id].item()
-
-            input_ids[0] = new_ids
-
-            # Snapshot teks saat ini
             snap_ids = input_ids[0, 2:seq_len - 1].tolist()
-            snap_tokens = [tokenizer.id_to_token(t) or "?" for t in snap_ids]
-            raw_snap_text = tokenizer.decode(snap_ids, skip_special_tokens=True)
+            raw_text = tokenizer.decode(snap_ids, skip_special_tokens=True)
             snapshots.append({
-                "iteration": iteration + 1,
-                "tokens": snap_tokens,
-                "text": clean_generated_headline(raw_snap_text),
+                "iteration": it + 1,
+                "text": clean_generated_headline(raw_text),
             })
 
-            # Re-mask token berconfidence rendah (kecuali iterasi terakhir)
-            if iteration < n_iterations - 1:
-                remask_ratio = 1.0 - (iteration + 1) / n_iterations
-                n_remask = max(1, int(math.ceil(remask_ratio * len(body_positions))))
-                
-                # Prioritaskan me-remask tanda baca berurutan jika ada yang lolos
-                body_conf = []
-                for p in body_positions:
-                    c = confidences[p].item()
-                    if p > body_positions[0] and new_ids[p].item() in punct_token_ids and new_ids[p - 1].item() in punct_token_ids:
-                        c = -1.0  # paksa remask
-                    body_conf.append((c, p))
+            if it < n_iterations - 1:
+                eligible_remask = [p for p in body_positions if p not in fixed_positions]
+                if not eligible_remask:
+                    break
+                n_remask = max(1, min(len(eligible_remask), int(math.ceil(0.25 * len(body_positions)))))
+                sorted_by_conf = sorted([(confidences[p].item(), p) for p in eligible_remask])
+                remask_positions = [p for _, p in sorted_by_conf[:n_remask]]
 
-                body_conf.sort()
-                for _, pos in body_conf[:n_remask]:
-                    input_ids[0, pos] = MASK_ID
+                for rpos in remask_positions:
+                    input_ids[0, rpos] = MASK_ID
+
+                out_refine = model(input_ids, attn_mask)
+                for rpos in remask_positions:
+                    chosen_id = _sample_from_logits(out_refine[0, rpos], rpos, current_tokens)
+                    input_ids[0, rpos] = chosen_id
+                    current_tokens.add(chosen_id)
 
     final_ids = input_ids[0, 2:seq_len - 1].tolist()
     raw_final_text = tokenizer.decode(final_ids, skip_special_tokens=True)
     final_text = clean_generated_headline(raw_final_text)
-    avg_confidence = float(
-        sum(confidences[p].item() for p in body_positions) / max(len(body_positions), 1)
-    )
+    avg_conf = float(sum(confidences[p].item() for p in body_positions) / max(len(body_positions), 1))
 
     return {
-        "style": LABEL_NAMES[1 if style_id == CB_ID else 0],
+        "style": style_name,
         "body_len_tokens": body_len,
         "generated_text": final_text,
         "token_ids": final_ids,
-        "avg_confidence": round(avg_confidence, 4),
+        "avg_confidence": round(avg_conf, 4),
         "iterations_snapshots": snapshots,
     }
 
@@ -464,25 +425,22 @@ def generate_titles(
     n: int,
     device: torch.device,
     histogram: List[int],
-    n_iterations: int = 10,
-    top_k: int = 50,
-    temperature: float = 1.0,
-    repetition_penalty: float = 1.3,
+    prompt: Optional[str] = None,
+    keywords: Optional[List[str]] = None,
+    n_iterations: int = 5,
+    top_k: int = 150,
+    temperature: float = 0.85,
+    repetition_penalty: float = 1.6,
     no_consecutive_punct: bool = True,
     fixed_length: Optional[int] = None,
 ) -> List[dict]:
     """
     Hasilkan n judul dengan gaya tertentu.
-
-    Args:
-        style               : "clickbait" atau "non-clickbait"
-        n                   : jumlah judul yang dihasilkan
-        fixed_length        : jika tidak None, pakai panjang tetap ini (dalam body token)
-        repetition_penalty : penalti repetisi token (> 1.0)
-        no_consecutive_punct: cegah tanda baca berturut-turut
     """
     style_id = CB_ID if style.lower() in ("clickbait", "cb") else NCB_ID
+    banned_token_ids = get_banned_token_ids(tokenizer)
     punct_token_ids = get_punctuation_token_ids(tokenizer)
+    batch_used_tokens = set()
     results = []
 
     for i in range(n):
@@ -493,13 +451,18 @@ def generate_titles(
             style_id=style_id,
             body_len=body_len,
             device=device,
+            prompt=prompt,
+            keywords=keywords,
             n_iterations=n_iterations,
             top_k=top_k,
             temperature=temperature,
             repetition_penalty=repetition_penalty,
             no_consecutive_punct=no_consecutive_punct,
+            banned_token_ids=banned_token_ids,
             punct_token_ids=punct_token_ids,
+            batch_used_tokens=batch_used_tokens,
         )
+        batch_used_tokens.update(result["token_ids"])
         result["idx"] = i + 1
         results.append(result)
         print(
@@ -527,18 +490,22 @@ def main():
     )
     parser.add_argument("--n", type=int, default=10,
                         help="Jumlah judul per gaya (default: 10)")
-    parser.add_argument("--iterations", type=int, default=generation_cfg.iterations,
-                        help=f"Jumlah iterasi mask-predict (default: {generation_cfg.iterations})")
-    parser.add_argument("--top-k", type=int, default=generation_cfg.top_k,
-                        help=f"Top-k kandidat token (default: {generation_cfg.top_k})")
-    parser.add_argument("--temp", type=float, default=generation_cfg.temperature,
-                        help=f"Temperature sampling (default: {generation_cfg.temperature})")
-    parser.add_argument("--repetition-penalty", type=float, default=1.3,
-                        help="Penalti repetisi token yang sudah ada (default: 1.3, 1.0 = nonaktif)")
+    parser.add_argument("--prompt", type=str, default=None,
+                        help="Prompt awal judul / template fill-mask (opsional)")
+    parser.add_argument("--keywords", type=str, default=None,
+                        help="Kata kunci dipisahkan koma, misal: 'persib, juara' (opsional)")
+    parser.add_argument("--iterations", type=int, default=5,
+                        help="Jumlah iterasi mask-predict (default: 5)")
+    parser.add_argument("--top-k", type=int, default=150,
+                        help="Top-k kandidat token sampling (default: 150)")
+    parser.add_argument("--temp", type=float, default=0.85,
+                        help="Temperature sampling (default: 0.85)")
+    parser.add_argument("--repetition-penalty", type=float, default=1.6,
+                        help="Penalti repetisi token (default: 1.6)")
     parser.add_argument("--allow-consecutive-punct", action="store_true",
-                        help="Izinkan tanda baca berurutan (default: larang tanda baca berurutan)")
+                        help="Izinkan tanda baca berurutan (default: dilarang)")
     parser.add_argument("--length", type=int, default=None,
-                        help="Panjang tetap body token (default: disampling dari histogram)")
+                        help="Panjang tetap body token (default: sampling dari histogram)")
     parser.add_argument("--checkpoint",
                         default=str(paths.checkpoints_dir / "style_mlm.pt"))
     parser.add_argument("--no-checkpoint", action="store_true",
@@ -584,10 +551,12 @@ def main():
         else ["non-clickbait"]
     )
 
+    kw_list = [k.strip() for k in args.keywords.split(",")] if args.keywords else None
+
     print(
         f"\nGenerasi {args.n} judul per gaya | iter={args.iterations} "
         f"top_k={args.top_k} temp={args.temp} rep_pen={args.repetition_penalty} "
-        f"no_repeat_punct={not args.allow_consecutive_punct} device={device}\n",
+        f"device={device}\n",
         flush=True,
     )
 
@@ -596,7 +565,8 @@ def main():
         print(f"--- Gaya: {style.upper()} ---", flush=True)
         results = generate_titles(
             model=model, tokenizer=tokenizer, style=style, n=args.n,
-            device=device, histogram=histogram, n_iterations=args.iterations,
+            device=device, histogram=histogram, prompt=args.prompt,
+            keywords=kw_list, n_iterations=args.iterations,
             top_k=args.top_k, temperature=args.temp,
             repetition_penalty=args.repetition_penalty,
             no_consecutive_punct=not args.allow_consecutive_punct,
@@ -619,6 +589,8 @@ def main():
         "repetition_penalty": args.repetition_penalty,
         "no_consecutive_punct": not args.allow_consecutive_punct,
         "fixed_length": args.length,
+        "prompt": args.prompt,
+        "keywords": kw_list,
         "seed": args.seed,
         "generated": all_results,
     }

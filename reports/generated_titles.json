@@ -2,223 +2,59 @@
   "model": "style_mlm",
   "checkpoint": "C:\\Users\\Alqi\\Gen AI\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\style_mlm.pt",
   "device": "cpu",
-  "n_per_style": 5,
-  "iterations": 10,
-  "top_k": 50,
-  "temperature": 1.0,
+  "n_per_style": 2,
+  "iterations": 5,
+  "top_k": 150,
+  "temperature": 0.85,
+  "repetition_penalty": 1.6,
+  "no_consecutive_punct": true,
   "fixed_length": null,
+  "prompt": null,
+  "keywords": [
+    "persib",
+    "juara"
+  ],
   "seed": 42,
   "generated": [
     {
       "style": "clickbait",
-      "body_len_tokens": 13,
-      "generated_text": "mans,, penanggulangan norma,,,, aguukulerkan seper",
+      "body_len_tokens": 12,
+      "generated_text": "persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan",
       "token_ids": [
-        10983,
-        15,
-        15,
-        4192,
-        12301,
-        15,
-        15,
-        15,
-        15,
-        15343,
-        814,
-        3561,
-        5481
+        2282,
+        2253,
+        3785,
+        15741,
+        5081,
+        9951,
+        7563,
+        13533,
+        13413,
+        4588,
+        11793,
+        12165
       ],
-      "avg_confidence": 0.8659,
+      "avg_confidence": 1.0,
       "iterations_snapshots": [
         {
           "iteration": 1,
-          "tokens": [
-            "dipahami",
-            ",",
-            ",",
-            "penanggulangan",
-            "##ukul",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            ",",
-            "seper"
-          ],
-          "text": "dipahami,, penanggulanganukul,,,, agu baca, seper"
+          "text": "persib juara ridho penanggulangan norma lampard bid berkekuatan berakting rute penentuan kesembuhan"
         },
         {
           "iteration": 2,
-          "tokens": [
-            "internet",
-            ",",
-            "##ukul",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "hamba",
-            ",",
-            "agu",
-            "baca",
-            "anto",
-            "seper"
-          ],
-          "text": "internet,ukul, norma,, hamba, agu baca anto seper"
+          "text": "persib juara diper mans appeared lampard bid berkekuatan berakting rute penentuan kesembuhan"
         },
         {
           "iteration": 3,
-          "tokens": [
-            ",",
-            "##gus",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            "baca",
-            "##onc",
-            "seper"
-          ],
-          "text": ",gus,,,,,,,, bacaonc seper"
+          "text": "persib juara 47 batasan butir lampard bid berkekuatan berakting rute penentuan kesembuhan"
         },
         {
           "iteration": 4,
-          "tokens": [
-            "norma",
-            ",",
-            "##ukul",
-            ",",
-            "penentuan",
-            ",",
-            ",",
-            ",",
-            ",",
-            "##bn",
-            "baca",
-            ",",
-            "seper"
-          ],
-          "text": "norma,ukul, penentuan,,,,bn baca, seper"
+          "text": "persib juara di perolehan televisi lampard bid berkekuatan berakting rute penentuan kesembuhan"
         },
         {
           "iteration": 5,
-          "tokens": [
-            "mans",
-            ",",
-            ",",
-            ",",
-            "##ukul",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "kej",
-            "di",
-            "seper"
-          ],
-          "text": "mans,,,ukul,,,, agu kej di seper"
-        },
-        {
-          "iteration": 6,
-          "tokens": [
-            "lampard",
-            "##ocoran",
-            "##orasi",
-            "penanggulangan",
-            "berbicara",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "penanggulangan",
-            "##erkan",
-            "seper"
-          ],
-          "text": "lampardocoranorasi penanggulangan berbicara,,,, agu penanggulanganerkan seper"
-        },
-        {
-          "iteration": 7,
-          "tokens": [
-            "internet",
-            ",",
-            ",",
-            "penanggulangan",
-            "##amata",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "##ukul",
-            "##erkan",
-            "seper"
-          ],
-          "text": "internet,, penanggulanganamata,,,, aguukulerkan seper"
-        },
-        {
-          "iteration": 8,
-          "tokens": [
-            "trauma",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            ",",
-            "seper"
-          ],
-          "text": "trauma,, penanggulangan norma,,,, agu baca, seper"
-        },
-        {
-          "iteration": 9,
-          "tokens": [
-            "mans",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            ",",
-            "##erkan",
-            "seper"
-          ],
-          "text": "mans,, penanggulangan norma,,,, agu,erkan seper"
-        },
-        {
-          "iteration": 10,
-          "tokens": [
-            "mans",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "##ukul",
-            "##erkan",
-            "seper"
-          ],
-          "text": "mans,, penanggulangan norma,,,, aguukulerkan seper"
+          "text": "persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan"
         }
       ],
       "idx": 1
@@ -226,737 +62,40 @@
     {
       "style": "clickbait",
       "body_len_tokens": 7,
-      "generated_text": "mans agu, penanggulangan norma,,",
+      "generated_text": "persib juara penerapan internet berbicara meninggal norma",
       "token_ids": [
-        10983,
-        15343,
-        15,
-        4192,
-        12301,
-        15,
-        15
+        2282,
+        2253,
+        4876,
+        3941,
+        3573,
+        920,
+        12301
       ],
-      "avg_confidence": 0.8804,
+      "avg_confidence": 1.0,
       "iterations_snapshots": [
         {
           "iteration": 1,
-          "tokens": [
-            "lampard",
-            "washington",
-            "##ukul",
-            "penanggulangan",
-            ",",
-            ",",
-            ","
-          ],
-          "text": "lampard washingtonukul penanggulangan,,,"
+          "text": "persib juara ridho penanggulangan berbicara meninggal norma"
         },
         {
           "iteration": 2,
-          "tokens": [
-            "dipahami",
-            ",",
-            ",",
-            "penanggulangan",
-            ",",
-            ",",
-            "##onc"
-          ],
-          "text": "dipahami,, penanggulangan,,onc"
+          "text": "persib juara water perolehan berbicara meninggal norma"
         },
         {
           "iteration": 3,
-          "tokens": [
-            "mans",
-            "##idah",
-            "##orasi",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "mansidahorasi penanggulangan norma,,"
+          "text": "persib juara butir terkendali berbicara meninggal norma"
         },
         {
           "iteration": 4,
-          "tokens": [
-            "perguruan",
-            "##bn",
-            ",",
-            "coba",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "perguruanbn, coba norma,,"
+          "text": "persib juara semasa batasan berbicara meninggal norma"
         },
         {
           "iteration": 5,
-          "tokens": [
-            "datang",
-            "##ocoran",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "datangocoran, penanggulangan norma,,"
-        },
-        {
-          "iteration": 6,
-          "tokens": [
-            "##uis",
-            "berkekuatan",
-            "seper",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "##uis berkekuatan seper penanggulangan norma,,"
-        },
-        {
-          "iteration": 7,
-          "tokens": [
-            "dipahami",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "dipahami,, penanggulangan norma,,"
-        },
-        {
-          "iteration": 8,
-          "tokens": [
-            "lampard",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "lampard,, penanggulangan norma,,"
-        },
-        {
-          "iteration": 9,
-          "tokens": [
-            "budi",
-            "agu",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "budi agu, penanggulangan norma,,"
-        },
-        {
-          "iteration": 10,
-          "tokens": [
-            "mans",
-            "agu",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ","
-          ],
-          "text": "mans agu, penanggulangan norma,,"
+          "text": "persib juara penerapan internet berbicara meninggal norma"
         }
       ],
       "idx": 2
-    },
-    {
-      "style": "clickbait",
-      "body_len_tokens": 10,
-      "generated_text": "lampard,,, norma,, berkekuatan, agu",
-      "token_ids": [
-        9951,
-        15,
-        15,
-        15,
-        12301,
-        15,
-        15,
-        13533,
-        15,
-        15343
-      ],
-      "avg_confidence": 0.9047,
-      "iterations_snapshots": [
-        {
-          "iteration": 1,
-          "tokens": [
-            "dipahami",
-            "gemp",
-            "berkekuatan",
-            ",",
-            "seper",
-            ",",
-            ",",
-            ",",
-            ",",
-            "##truksikan"
-          ],
-          "text": "dipahami gemp berkekuatan, seper,,,,truksikan"
-        },
-        {
-          "iteration": 2,
-          "tokens": [
-            "av",
-            "afghan",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "penanggulangan"
-          ],
-          "text": "av afghan,, norma,, berkekuatan, penanggulangan"
-        },
-        {
-          "iteration": 3,
-          "tokens": [
-            "budi",
-            ",",
-            "##ukul",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            ","
-          ],
-          "text": "budi,ukul, norma,,,,,"
-        },
-        {
-          "iteration": 4,
-          "tokens": [
-            "k",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu"
-          ],
-          "text": "k,,, norma,,,, agu"
-        },
-        {
-          "iteration": 5,
-          "tokens": [
-            "##ukul",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu"
-          ],
-          "text": "##ukul,,, norma,,,, agu"
-        },
-        {
-          "iteration": 6,
-          "tokens": [
-            ",",
-            "melambat",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "lampard",
-            ",",
-            "agu"
-          ],
-          "text": ", melambat,, norma,, lampard, agu"
-        },
-        {
-          "iteration": 7,
-          "tokens": [
-            "lampard",
-            "pg",
-            ",",
-            "norma",
-            "norma",
-            ",",
-            ",",
-            "meninggal",
-            ",",
-            "agu"
-          ],
-          "text": "lampard pg, norma norma,, meninggal, agu"
-        },
-        {
-          "iteration": 8,
-          "tokens": [
-            "dipahami",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "kej",
-            ",",
-            "agu"
-          ],
-          "text": "dipahami,,, norma,, kej, agu"
-        },
-        {
-          "iteration": 9,
-          "tokens": [
-            "lampard",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "lampard,,, norma,, berkekuatan, agu"
-        },
-        {
-          "iteration": 10,
-          "tokens": [
-            "lampard",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "lampard,,, norma,, berkekuatan, agu"
-        }
-      ],
-      "idx": 3
-    },
-    {
-      "style": "clickbait",
-      "body_len_tokens": 10,
-      "generated_text": "mansuf,, norma,, berkekuatan, agu",
-      "token_ids": [
-        10983,
-        1909,
-        15,
-        15,
-        12301,
-        15,
-        15,
-        13533,
-        15,
-        15343
-      ],
-      "avg_confidence": 0.9006,
-      "iterations_snapshots": [
-        {
-          "iteration": 1,
-          "tokens": [
-            "budi",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            ","
-          ],
-          "text": "budi,,, norma,,,,,"
-        },
-        {
-          "iteration": 2,
-          "tokens": [
-            ",",
-            ",",
-            "ridho",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu"
-          ],
-          "text": ",, ridho, norma,,,, agu"
-        },
-        {
-          "iteration": 3,
-          "tokens": [
-            "##anza",
-            "agu",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "##anza agu, penanggulangan norma,, berkekuatan, agu"
-        },
-        {
-          "iteration": 4,
-          "tokens": [
-            "dipahami",
-            "##ocoran",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "dok",
-            ",",
-            "agu"
-          ],
-          "text": "dipahamiocoran,, norma,, dok, agu"
-        },
-        {
-          "iteration": 5,
-          "tokens": [
-            "di",
-            ",",
-            "##orasi",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            "##bn",
-            ",",
-            "agu"
-          ],
-          "text": "di,orasi penanggulangan norma,,bn, agu"
-        },
-        {
-          "iteration": 6,
-          "tokens": [
-            "pada",
-            ",",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu"
-          ],
-          "text": "pada,, penanggulangan norma,,,, agu"
-        },
-        {
-          "iteration": 7,
-          "tokens": [
-            "##alnya",
-            "meninggal",
-            ",",
-            "penanggulangan",
-            "norma",
-            ",",
-            ",",
-            "##torat",
-            ",",
-            "agu"
-          ],
-          "text": "##alnya meninggal, penanggulangan norma,,torat, agu"
-        },
-        {
-          "iteration": 8,
-          "tokens": [
-            "ridho",
-            "gemp",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "ridho gemp,, norma,, berkekuatan, agu"
-        },
-        {
-          "iteration": 9,
-          "tokens": [
-            "mans",
-            "batasan",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "mans batasan,, norma,, berkekuatan, agu"
-        },
-        {
-          "iteration": 10,
-          "tokens": [
-            "mans",
-            "##uf",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "berkekuatan",
-            ",",
-            "agu"
-          ],
-          "text": "mansuf,, norma,, berkekuatan, agu"
-        }
-      ],
-      "idx": 4
-    },
-    {
-      "style": "clickbait",
-      "body_len_tokens": 14,
-      "generated_text": "dipahami seper,, norma,,,, agu bacaonc seper penanggulangan",
-      "token_ids": [
-        12695,
-        5481,
-        15,
-        15,
-        12301,
-        15,
-        15,
-        15,
-        15,
-        15343,
-        6940,
-        14736,
-        5481,
-        4192
-      ],
-      "avg_confidence": 0.8637,
-      "iterations_snapshots": [
-        {
-          "iteration": 1,
-          "tokens": [
-            "sunan",
-            ",",
-            "seper",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            ",",
-            "##onc",
-            "seper",
-            "memecat"
-          ],
-          "text": "sunan, seper, norma,,,, agu,onc seper memecat"
-        },
-        {
-          "iteration": 2,
-          "tokens": [
-            "sunan",
-            "##idah",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            "transaksi",
-            "##onc",
-            ",",
-            "##gus"
-          ],
-          "text": "sunanidah,,,,,,,, transaksionc,gus"
-        },
-        {
-          "iteration": 3,
-          "tokens": [
-            "##ukul",
-            "meninggal",
-            ",",
-            ",",
-            ",",
-            ",",
-            ",",
-            "##bn",
-            ",",
-            "agu",
-            "penanggulangan",
-            ",",
-            "seper",
-            "penanggulangan"
-          ],
-          "text": "##ukul meninggal,,,,,bn, agu penanggulangan, seper penanggulangan"
-        },
-        {
-          "iteration": 4,
-          "tokens": [
-            "mans",
-            "agu",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            "47",
-            ",",
-            "agu",
-            ",",
-            "berkekuatan",
-            "seper",
-            "penanggulangan"
-          ],
-          "text": "mans agu,, norma,, 47, agu, berkekuatan seper penanggulangan"
-        },
-        {
-          "iteration": 5,
-          "tokens": [
-            "dipahami",
-            "afghan",
-            ",",
-            "penanggulangan",
-            "baca",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "afghan",
-            "anto",
-            "seper",
-            "agu"
-          ],
-          "text": "dipahami afghan, penanggulangan baca,,,, agu afghan anto seper agu"
-        },
-        {
-          "iteration": 6,
-          "tokens": [
-            "mans",
-            "bj",
-            ",",
-            ",",
-            "##ukul",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            ",",
-            "seper",
-            "memecat"
-          ],
-          "text": "mans bj,,ukul,,,, agu baca, seper memecat"
-        },
-        {
-          "iteration": 7,
-          "tokens": [
-            "dipahami",
-            ",",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "kenamaan",
-            "fisik",
-            "seper",
-            "penanggulangan"
-          ],
-          "text": "dipahami,,, norma,,,, agu kenamaan fisik seper penanggulangan"
-        },
-        {
-          "iteration": 8,
-          "tokens": [
-            "dipahami",
-            "butir",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            "berkekuatan",
-            "seper",
-            "##gus"
-          ],
-          "text": "dipahami butir,, norma,,,, agu baca berkekuatan sepergus"
-        },
-        {
-          "iteration": 9,
-          "tokens": [
-            "dipahami",
-            "transaksi",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            "berkekuatan",
-            "seper",
-            "penanggulangan"
-          ],
-          "text": "dipahami transaksi,, norma,,,, agu baca berkekuatan seper penanggulangan"
-        },
-        {
-          "iteration": 10,
-          "tokens": [
-            "dipahami",
-            "seper",
-            ",",
-            ",",
-            "norma",
-            ",",
-            ",",
-            ",",
-            ",",
-            "agu",
-            "baca",
-            "##onc",
-            "seper",
-            "penanggulangan"
-          ],
-          "text": "dipahami seper,, norma,,,, agu bacaonc seper penanggulangan"
-        }
-      ],
-      "idx": 5
     }
   ]
 }

@@ -1,31 +1,29 @@
 ============================================================
   STEP 5 - EVALUASI HASIL GENERASI IndoMiniBERT
 ============================================================
-Jumlah judul yang dievaluasi: 4
+Jumlah judul yang dievaluasi: 2
 
 --- 1. NOVELTY (Kebaruan) ---
-  Semua gaya   : 100.00% (4/4)
+  Semua gaya   : 100.00% (2/2)
   Clickbait    : 100.00%  (2/2)
-  Non-clickbait: 100.00%  (2/2)
+  Non-clickbait: N/A
 
 --- 2. DIVERSITY (Keberagaman) ---
-  Distinct-1   : 0.275
-  Distinct-2   : 0.4722
-  Self-BLEU    : 0.6793 (lebih rendah = lebih beragam)
+  Distinct-1   : 0.8947
+  Distinct-2   : 0.9412
+  Self-BLEU    : 0.0 (lebih rendah = lebih beragam)
 
 --- 3. STYLE ACCURACY (Kualitas Gaya via Classifier) ---
-  Akurasi gaya (semua) : 0.5
+  Akurasi gaya (semua) : 0.0
   Clickbait accuracy   : 0.0
-  Non-CB accuracy      : 1.0
+  Non-CB accuracy      : None
 
 --- 4. PERPLEXITY (Kelancaran) ---
-  Mean perplexity  : 4.9254 (lebih rendah = lebih lancar)
-  Median perplexity: 4.8281
+  Mean perplexity  : 51794015.6576 (lebih rendah = lebih lancar)
+  Median perplexity: 51794015.6576
 
 --- JUDUL YANG DIHASILKAN ---
-  [CL] mans,, penanggulangan norma,,,, aguukulerkan seper
-  [CL] mans agu, penanggulangan norma,,
-  [NO] dipahami,,, norma,, berkekuatan, agu
-  [NO] mansuf,, norma,, berkekuatan, agu
+  [CL] persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan
+  [CL] persib juara penerapan internet berbicara meninggal norma
 
 ============================================================

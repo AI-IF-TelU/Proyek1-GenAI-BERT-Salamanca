@@ -2,10 +2,7 @@
   HASIL GENERASI JUDUL - IndoMiniBERT Step 5
 ============================================================
 
-[CL] mans,, penanggulangan norma,,,, aguukulerkan seper
-[CL] mans agu, penanggulangan norma,,
-[CL] lampard,,, norma,, berkekuatan, agu
-[CL] mansuf,, norma,, berkekuatan, agu
-[CL] dipahami seper,, norma,,,, agu bacaonc seper penanggulangan
+[CL] persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan
+[CL] persib juara penerapan internet berbicara meninggal norma
 
-Total judul: 5
+Total judul: 2

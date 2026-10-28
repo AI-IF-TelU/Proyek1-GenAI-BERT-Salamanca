@@ -2,19 +2,19 @@
   "step": 5,
   "device": "cpu",
   "input_file": "C:\\Users\\Alqi\\Gen AI\\Proyek1-GenAI-BERT-Salamanca\\reports\\generated_titles.json",
-  "n_generated": 4,
+  "n_generated": 2,
   "generation_config": {
     "model": "style_mlm",
     "checkpoint": "C:\\Users\\Alqi\\Gen AI\\Proyek1-GenAI-BERT-Salamanca\\checkpoints\\style_mlm.pt",
-    "iterations": 10,
-    "top_k": 50,
-    "temperature": 1.0
+    "iterations": 5,
+    "top_k": 150,
+    "temperature": 0.85
   },
   "metrics": {
     "novelty": {
       "all": {
-        "novel_count": 4,
-        "total": 4,
+        "novel_count": 2,
+        "total": 2,
         "novelty_ratio": 1.0
       },
       "clickbait": {
@@ -23,84 +23,63 @@
         "novelty_ratio": 1.0
       },
       "non_clickbait": {
-        "novel_count": 2,
-        "total": 2,
-        "novelty_ratio": 1.0
+        "novel_count": 0,
+        "total": 0,
+        "novelty_ratio": 0.0
       }
     },
     "diversity": {
       "all": {
-        "n_titles": 4,
-        "distinct_1": 0.275,
-        "distinct_2": 0.4722,
-        "total_unigrams": 40,
-        "unique_unigrams": 11,
-        "total_bigrams": 36,
-        "unique_bigrams": 17,
-        "self_bleu": 0.6793,
-        "self_bleu_std": 0.1593,
-        "n_evaluated": 4
+        "n_titles": 2,
+        "distinct_1": 0.8947,
+        "distinct_2": 0.9412,
+        "total_unigrams": 19,
+        "unique_unigrams": 17,
+        "total_bigrams": 17,
+        "unique_bigrams": 16,
+        "self_bleu": 0.0,
+        "self_bleu_std": 0.0,
+        "n_evaluated": 2
       },
       "clickbait": {
         "n_titles": 2,
-        "distinct_1": 0.4,
-        "distinct_2": 0.6111,
-        "total_unigrams": 20,
-        "unique_unigrams": 8,
-        "total_bigrams": 18,
-        "unique_bigrams": 11,
-        "self_bleu": 0.4916,
-        "self_bleu_std": 0.1771,
-        "n_evaluated": 2
-      },
-      "non_clickbait": {
-        "n_titles": 2,
-        "distinct_1": 0.35,
-        "distinct_2": 0.5,
-        "total_unigrams": 20,
-        "unique_unigrams": 7,
-        "total_bigrams": 18,
-        "unique_bigrams": 9,
-        "self_bleu": 0.7598,
+        "distinct_1": 0.8947,
+        "distinct_2": 0.9412,
+        "total_unigrams": 19,
+        "unique_unigrams": 17,
+        "total_bigrams": 17,
+        "unique_bigrams": 16,
+        "self_bleu": 0.0,
         "self_bleu_std": 0.0,
         "n_evaluated": 2
-      }
+      },
+      "non_clickbait": {}
     },
     "style_accuracy": {
-      "style_accuracy": 0.5,
+      "style_accuracy": 0.0,
       "clickbait_accuracy": 0.0,
-      "non_clickbait_accuracy": 1.0,
-      "correct": 2,
-      "total": 4
+      "non_clickbait_accuracy": null,
+      "correct": 0,
+      "total": 2
     },
     "perplexity": {
-      "mean_perplexity": 4.9254,
-      "median_perplexity": 4.8281,
-      "min_perplexity": 2.1728,
-      "max_perplexity": 7.8724,
-      "n_evaluated": 4
+      "mean_perplexity": 51794015.6576,
+      "median_perplexity": 51794015.6576,
+      "min_perplexity": 565.3952,
+      "max_perplexity": 103587465.9199,
+      "n_evaluated": 2
     }
   },
   "generated_titles": [
     {
       "style": "clickbait",
-      "text": "mans,, penanggulangan norma,,,, aguukulerkan seper",
-      "confidence": 0.8659
+      "text": "persib juara merilis hamba otak lampard bid berkekuatan berakting rute penentuan kesembuhan",
+      "confidence": 1.0
     },
     {
       "style": "clickbait",
-      "text": "mans agu, penanggulangan norma,,",
-      "confidence": 0.8804
-    },
-    {
-      "style": "non-clickbait",
-      "text": "dipahami,,, norma,, berkekuatan, agu",
-      "confidence": 0.9478
-    },
-    {
-      "style": "non-clickbait",
-      "text": "mansuf,, norma,, berkekuatan, agu",
-      "confidence": 0.9007
+      "text": "persib juara penerapan internet berbicara meninggal norma",
+      "confidence": 1.0
     }
   ]
 }
